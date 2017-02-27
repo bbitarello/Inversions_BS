@@ -6,7 +6,7 @@
 ##########################################################################################
 
 #preamble
-
+library(pegas)
 library(dplyr)
 library(plyr)
 library(data.table)
@@ -41,6 +41,7 @@ colnames(HC_div)<-c('CHROM', 'POS', 'REF', 'Chimp_REF')
 
 HC_div<-HC_div %>% dplyr::mutate(REF=toupper(REF), Chimp_REF=toupper(Chimp_REF)) %>% dplyr::filter(POS>=40224426 & POS<= 40247234) %>% as.data.table  #select range of inversions +- 10 kb
 
+HC_div2<-HC_div %>% dplyr::mutate(REF=toupper(REF), Chimp_REF=toupper(Chimp_REF)) %>% as.data.table  #select range of inversions +- 10 kb
 ##################   SNP DATA ###################
 #PHASE 3 1000G
 ###vcf file chr4
@@ -58,31 +59,35 @@ system('awk \'OFS=\"\t\"{print $1, $2}\' VariantsClassified_HsInv0102_using434Ph
 
 system('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr4.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --chr 4 --positions filter_pos.txt --recode --recode-INFO-all --out /mnt/sequencedb/PopGen/barbara/inversions_balsel/test.vcf')#thus we recapitulate the snps they sent us.
 
-
 #this here is so that we can get ancestral states (obsolete)
 
 #system('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/functional_annotation/ALL.chr4.phase3_shapeit2_mvncall_integrated_v5_func_anno.20130502.sites.vcf.gz --chr 4 --positions filter_pos.txt --recode --recode-INFO-all --out /mnt/sequencedb/PopGen/barbara/inversions_balsel/func_annot_chr4_phase3_inversions.vcf')
 
 system('head -n 250 test.vcf.recode.vcf > header.txt')
 system('tail -n 607 test.vcf.recode.vcf |sed \'s/#//\' > chr4_inversion_no_header.vcf')
+
+#keep only those that have derived allele info
+
+system('grep \\;AA test.vcf.recode.vcf |grep -v insertion|grep -v deletion|sed \'1d\' > test2.vcf.recode.vcf') #583 SNPs
+
+system('cat header.txt test2.vcf.recode.vcf |bgzip -c > chr4_inversion_vcf.gz') #compress vcf
+system('tabix -fp vcf chr4_inversion_vcf.gz') #index vcf
 #calculate frequencies using vctools
 
-system('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr4.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --freq --chr 4 --positions filter_pos.txt --out /mnt/sequencedb/PopGen/barbara/inversions_balsel/freq_chr4_inv.txt')
+system('vcftools --gzvcf chr4_inversion_vcf.gz --counts --out /mnt/sequencedb/PopGen/barbara/inversions_balsel/freq_chr4_inv.txt')
 
-system('sed \'s/\t/  /\'  freq_chr4_inv.txt.frq |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/\'|sed \'s/\t/;/\'|sed \'s/  /\t/g\' > freq_inv.txt')
+system('sed \'s/\t/  /\'  freq_chr4_inv.txt.frq.count  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/\'|sed \'s/\t/;/\'|sed \'s/  /\t/g\' > freq_inv.txt')
 
 fread('freq_inv.txt')-> freq_inv #global frequencies of the SNPs in the inversion. If I want pop specific it will require some further filtering.
 colnames(freq_inv)[5]<- gsub(":","_",gsub("\\{|\\}","", colnames(freq_inv)[5])) #fix col name
 #index vcf
 
-system('bgzip -c chr4_inversion_no_header.vcf > chr4_inversion_vcf.gz') #compress vcf
-system('tabix -fp vcf chr4_inversion_vcf.gz') #index vcf
+system('cat header2.txt test2.vcf.recode.vcf > real_vcf')
 
-
-fread('zcat chr4_inversion_vcf.gz')-> chr4_inv_vcf #read in vcf
+fread('real_vcf', header=T)-> chr4_inv_vcf #read in vcf
 
 #adding a header to this data.table
-colnames(chr4_inv_vcf)<-unlist(strsplit(gsub("#","",system('tail -n 1 header.txt', intern=T)), "\t"))
+#colnames(chr4_inv_vcf)<-unlist(strsplit(gsub("#","",system('tail -n 1 header.txt', intern=T)), "\t"))
 
 chr4_simp<- select(chr4_inv_vcf, CHROM:FORMAT)
 
@@ -115,4 +120,33 @@ comp_dt %>% dplyr::group_by(Type) %>% dplyr::summarise(N=n(), D=209, Dcor=180, P
 #first, use vcf tools to filter the region
 
 #then read in that vcf file
+
+
+#something new
+
+
+fread('calculated_fra.40225087-40246984.ALL.txt', sep="\t")-> ens_inv
+colnames(ens_inv)[1]<-'CHROM'
+
+#add ancestral info
+
+
+
+
+##
+
+
+apply(select(chr4_inv_vcf, INFO), 2, function(x) strsplit(x, ";"))[[1]]-> test
+ANCESTRAL<-unlist(mclapply(test, function(x) gsub("\\|","",gsub("AA=","",x[[11]]))))
+
+chr4_inv_vcf %>% mutate(ANC=toupper(ANCESTRAL)) %>% as.data.table -> yay
+#i love dplyr
+ens_inv %>% dplyr::filter(POS %in% chr4_inv_vcf$POS) %>% mutate(ANC=ANCESTRAL) %>% as.data.table -> yay2
+#aso far the 57 cases where ALT is NOT derived, we need to redefine frequencies
+
+yay2 %>% dplyr::mutate(RefAnc=ifelse(REF==ANC, 'TRUE', 'FALSE')) %>% as.data.table %>% filter(RefAnc=='FALSE') %>% as.data.table-> yay3
+
+
+
+
 

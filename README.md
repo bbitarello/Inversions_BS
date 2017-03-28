@@ -1,9 +1,14 @@
-***************************
-Inversions Project
+**********************************************************************************
+
+Inversions Project (participation in Mario Caceres' Project)
+
 Investigating signatures of balancing selection in human chromosomal inversions
+
 Author: Bárbara Domingues Bitarello
+
 Last modified: 28.03.2017
-**************************
+
+**********************************************************************************
 
 Use Felix's script to recode vcf and make ALT==DERIVED
 
@@ -20,7 +25,6 @@ tabix -p vcf chr4_1000gph3_DAF.vcf.gz
 
 ************
 Get samples from each population
-************
 
 ```
 grep LWK /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/integrated_call_samples_v3.20130502.ALL.panel|awk '{print $1}' > /mnt/sequencedb/PopGen/barbara/inversions_balsel/input_files/LWK_samples.txt
@@ -32,21 +36,18 @@ grep TSI /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/integrated_call_samples
 
 ***************************************************************************
 Subset VCF files for chr4 for each pop separately and calculate frequencies
-***************************************************************************
+
 see phase3_1000g_inversion_chr4.R
 
 
 **************************************************************************
 For each pop, select SNPs contained in the inversion and plot SFS
-**************************************************************************
+
 see phase3_1000g_inversion_chr4.R
 
 ****************************************************************************
 For each pop, select PrivateSTD SNPs contained in the inversion and plot SFS
-****************************************************************************
 
 ********************************************************************************
-Use MAF to calculate NCD1 and NCD2 for the entire chromosome in windows of 3 kb
-********************************************************************************
-
+Use MAF to calculate *NCD1* and *NCD2* for the entire chromosome in windows of 3 kb
 

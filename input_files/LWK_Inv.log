@@ -1,0 +1,19 @@
+
+VCFtools - v0.1.11
+(C) Adam Auton 2009
+
+Parameters as interpreted:
+	--gzvcf chr4_1000gph3_DAF.vcf.gz
+	--keep input_files/LWK_samples.txt
+	--freq
+	--out input_files/LWK_Inv
+
+Using zlib version: 1.2.3.4
+Versions of zlib >= 1.2.4 will be *much* faster when reading zipped VCF files.
+Reading Index file.
+File contains 4964644 entries and 2504 individuals.
+Applying Required Filters.
+Keeping individuals in 'keep' list
+After filtering, kept 99 out of 2504 Individuals
+After filtering, kept 4964644 out of a possible 4964644 Sites
+Outputting Frequency Statistics...

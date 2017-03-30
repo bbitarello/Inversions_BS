@@ -45,9 +45,15 @@ For each pop, select SNPs contained in the inversion and plot SFS
 
 see phase3_1000g_inversion_chr4.R
 
+
+
 ****************************************************************************
 For each pop, select PrivateSTD SNPs contained in the inversion and plot SFS
+
+
 
 ********************************************************************************
 Use MAF to calculate *NCD1* and *NCD2* for the entire chromosome in windows of 3 kb
 
+
+Need to update NCD scripts. USe data.table.

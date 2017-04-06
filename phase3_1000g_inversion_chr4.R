@@ -2,7 +2,7 @@
 #	Use Phase 1 1000G data to verify allele frequencies within inversion in chr4
 #	Bárbara Bitarello
 #	Created: 14.02.2017
-#	Last modified: 03.04.2017
+#	Last modified: 04.04.2017
 ##########################################################################################
 
 #preamble
@@ -24,49 +24,30 @@ source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/mclapply2.R')
 source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/SFS_script.r')
 
 #load('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/read_scan_data/list.SCAN.3.RData')
-
 ####
 #read in data 
 
-#Inversions file
+#Inversions file:
 fread('input_files/VariantsClassified_HsInv0102_using434Ph3Samples.txt')-> var_dt
 
-#human-chimp divergence file
-
+#human-chimp divergence file:
 'zcat < /mnt/sequencedb/PopGen/barbara/NCV_dir_package/input_data/outgroup_files/fds.chr4.hg19_pantro2.Map50_100.TRF.SDs.bed.gz' %>%
 data.table::fread(sep='\t') -> HC_div
-
 colnames(HC_div)<-c('CHROM', 'POS', 'REF', 'Chimp_REF')
 
 #use uppercase
-
 HC_div1<-HC_div %>% dplyr::mutate(REF=toupper(REF), Chimp_REF=toupper(Chimp_REF)) %>% dplyr::filter(POS>=40224426 & POS<= 40247234) %>% as.data.table  #select range of inversions +- 10 kb
-
 HC_div2<-HC_div %>% dplyr::mutate(REF=toupper(REF), Chimp_REF=toupper(Chimp_REF)) %>% as.data.table  #all FDs for chr4
 
 #######################################################################
 ##################   SFS SFS SFS SFS SFS SFS SFS ######################
 #######################################################################
-###OBSOLETE
-#system('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr4.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --chr 4 --from-bp 40224426 --to-bp 40247234 --remove-indels --recode --out  /mnt/sequencedb/PopGen/barbara/inversions_balsel/chr4_inversion_vcf.vcf')
-#trying an alternative approach
-#system('vcftools --gzvcf chr4_1000gph3_DAF.vcf.gz --chr 4 --positions filter_pos.txt --recode --remove-indels --recode-INFO-all --out /mnt/sequencedb/PopGen/barbara/inversions_balsel/inv_subset')#thus we recapitulate the snps they sent us.
-#this here is so that we can get ancestral states (obsolete)
-#system('head -n 250 inv_subset.recode.vcf > header.txt')
-#system('tail -n 607 inv_subset.recode.vcf |sed \'s/#//\' > chr4_inversion_no_header.vcf')
-#keep only those that have derived allele info
-#system('grep \\;AA inv_subset.recode.vcf |grep -v insertion|grep -v deletion|sed \'1d\' > test2.vcf.recode.vcf') #576 SNPs
-#system('cat header.txt test2.vcf.recode.vcf |bgzip -c > chr4_inversion_vcf.gz') #compress vcf
-#system('tabix -fp vcf chr4_inversion_vcf.gz') #index vcf
-#calculate frequencies using vctools
-
-
-system('awk \'OFS=\"\t\"{print $1, $2}\' input_files/VariantsClassified_HsInv0102_using434Ph3Samples.txt |sed \'1d\' > input_files/filter_pos.txt') #positions sent by MC
+# SKIP to LINE 115
+#TO DO: SO FAR I DID THIS ONLY FOR THE INVERSION IN CHR4. COULD CONSIDER DOING IT FOR ALL (37).
 
 #see in README. how we recoded the chr4 phase 3 vcf file so that ALT==DERIVED
 #DAF
 system('vcftools --gzvcf chr4_1000gph3_DAF.vcf.gz --freq --out chr4_1000gph3_DAF')
-
 #now each pop separately:
 #DAF
 system('vcftools --gzvcf chr4_1000gph3_DAF.vcf.gz --keep input_files/LWK_samples.txt --freq --out input_files/LWK_chr4_DAF')
@@ -112,7 +93,6 @@ as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(YRI_chr4_DAF %>
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(GBR_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> GBR_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(TSI_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> TSI_invPrivStd_DAF
 
-
 pdf('figures/test.SFS.allinv_chr4.pdf')
 #par(mfrow=c(4,1))
 barplot(table(factor(round(LWK_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(LWK_inv_DAF,2),levels=seq(0,1,0.01)))), main="LWK all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
@@ -136,72 +116,137 @@ Store(LWK_chr4_DAF, YRI_chr4_DAF, GBR_chr4_DAF, TSI_chr4_DAF, LWK_inv_DAF, YRI_i
 ##################################################################################
 ### END OF SFS #### END OF SFS #### END OF SFS #### END OF SFS ### END OF SFS ####
 ##################################################################################
-
-
+##################################################################################
+### END OF SFS #### END OF SFS #### END OF SFS #### END OF SFS ### END OF SFS ####
+##################################################################################
+#################################################################################
+### END OF SFS #### END OF SFS #### END OF SFS #### END OF SFS ### END OF SFS ####
+##################################################################################
+##################################################################################
+### END OF SFS #### END OF SFS #### END OF SFS #### END OF SFS ### END OF SFS ####
+##################################################################################
+#
 ##################################################################################
 ############## PtoD ### PtoD #### PToD ### PtoD #### PToD ########################
 ##################################################################################
 #the following was done wihtout removing indels. Might need to redo properly.
-system('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr4.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/LWK_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/LWK_chr4_AF')
-system('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr4.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/YRI_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/YRI_chr4_AF')
-system('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr4.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/TSI_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/TSI_chr4_AF')
-system('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr4.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/GBR_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/GBR_chr4_AF')
-#clean up spaces etc.
-system('sed \'s/\t/  /\'  input_files/LWK_chr4_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/LWK_chr4_AF_2.frq')
-system('sed \'s/\t/  /\'  input_files/YRI_chr4_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/YRI_chr4_AF_2.frq')
-system('sed \'s/\t/  /\'  input_files/GBR_chr4_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/GBR_chr4_AF_2.frq')
-system('sed \'s/\t/  /\'  input_files/TSI_chr4_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/TSI_chr4_AF_2.frq')
-system('rm input_files/LWK_chr4_AF.frq input_files/YRI_chr4_AF.frq input_files/GBR_chr4_AF.frq input_files/TSI_chr4_AF.frq')  #by nice to thy co-workers and clean up garbage.
-#read
-fread('input_files/LWK_chr4_AF_2.frq')->LWK_chr4_AF
-fread('input_files/YRI_chr4_AF_2.frq')->YRI_chr4_AF
-fread('input_files/GBR_chr4_AF_2.frq')->GBR_chr4_AF
-fread('input_files/TSI_chr4_AF_2.frq')->TSI_chr4_AF
-#change colnames for something useful
-colnames(LWK_chr4_AF)<-c('CHR','POS','nAL', 'N_chr','AF')
-colnames(YRI_chr4_AF)<-c('CHR','POS','nAL', 'N_chr','AF')
-colnames(GBR_chr4_AF)<-c('CHR','POS','nAL', 'N_chr','AF')
-colnames(TSI_chr4_AF)<-c('CHR','POS','nAL', 'N_chr','AF')
-#because of indels I now have to do something horrible: STOPPED HERE 03.03.2017
-as.numeric(gsub("^T:","",gsub("^G:","",gsub("^C:","", gsub("^A:","",LWK_chr4_AF$AF)))))-> LWK_chr4_AF$ALT_AF
-as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",YRI_chr4_AF$AF)))))-> YRI_chr4_AF$ALT_AF
-as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",GBR_chr4_AF$AF)))))-> GBR_chr4_AF$ALT_AF
-as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",TSI_chr4_AF$AF)))))-> TSI_chr4_AF$ALT_AF
-#ref allele
-as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",LWK_chr4_AF$REF_AF)))))-> LWK_chr4_AF$REF_AF
-as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",YRI_chr4_AF$REF_AF)))))-> YRI_chr4_AF$REF_AF
-as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",GBR_chr4_AF$REF_AF)))))-> GBR_chr4_AF$REF_AF
-as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",TSI_chr4_AF$REF_AF)))))-> TSI_chr4_AF$REF_AF
-#add a MAF column (useful for NCD calculations) and keep only SNPs segregating in the pop.
-LWK_chr4_AF %>% dplyr::mutate(MAF=min(REF_AF, ALT_AF)) %>% dplyr::filter(MAF>0)  %>% as.data.table
-YRI_chr4_AF %>% dplyr::mutate(MAF=min(REF_AF, ALT_AF)) %>% dplyr::filter(MAF>0)  %>% as.data.table
-GBR_chr4_AF %>% dplyr::mutate(MAF=min(REF_AF, ALT_AF)) %>% dplyr::filter(MAF>0)  %>% as.data.table
-TSI_chr4_AF %>% dplyr::mutate(MAF=min(REF_AF, ALT_AF)) %>% dplyr::filter(MAF>0)  %>% as.data.table
+#skip to line 155
+system.time(mclapply2(1:22, function(i) system(paste0('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr',i,'.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/LWK_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/LWK_chr', i, '_AF'))))
 
-#take 1st and last position and do windows of the same size of the inversion
+system.time(mclapply2(1:22, function(i) system(paste0('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr',i,'.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/GBR_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/GBR_chr', i, '_AF'))))
+
+system.time(mclapply2(1:22, function(i) system(paste0('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr',i,'.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/YRI_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/YRI_chr', i, '_AF'))))
+
+system.time(mclapply2(1:22, function(i) system(paste0('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr',i,'.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/TSI_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/TSI_chr', i, '_AF'))))  #10369.160 
+
+mclapply2(1:22, function(i)
+system(paste0('sed \'s/\t/  /\'  input_files/LWK_chr', i, '_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/LWK_chr', i, '_AF_2.frq')))
+mclapply2(1:22, function(i)
+system(paste0('sed \'s/\t/  /\'  input_files/YRI_chr', i, '_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/YRI_chr', i, '_AF_2.frq')))
+mclapply2(1:22, function(i)
+system(paste0('sed \'s/\t/  /\'  input_files/GBR_chr', i, '_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/GBR_chr', i, '_AF_2.frq')))
+mclapply2(1:22, function(i)
+system(paste0('sed \'s/\t/  /\'  input_files/TSI_chr', i, '_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/TSI_chr', i, '_AF_2.frq')))
+
+#remove duplicated files
+system('rm input_files/*AF.frq')
+system('rm input_files/*AF.log')
+#####
+#
+mclapply2(1:22, function(i)
+fread(paste0("gunzip -c /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr", i, ".phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz|grep \"^[^#;]\"|awk \'{print $1,$2,$4,$5}\'")))-> Res_Alt_list
+
+for(i in 1:22){colnames(Res_Alt_list[[i]])<-c("CHR","POS","REF","ALT")};
+
+Store(Res_Alt_list); Objects();
+#
+tmp<-vector('list',22);Pops_AF<-list(LWK=tmp, YRI=tmp, GBR=tmp, TSI=tmp); #create list for freq files
+mclapply2(1:22, function(i) fread(paste0('input_files/LWK_chr',i, '_AF_2.frq')))->Pops_AF[['LWK']];
+mclapply2(1:22, function(i) fread(paste0('input_files/YRI_chr',i, '_AF_2.frq')))->Pops_AF[['YRI']];
+mclapply2(1:22, function(i) fread(paste0('input_files/GBR_chr',i, '_AF_2.frq')))->Pops_AF[['GBR']];
+mclapply2(1:22, function(i) fread(paste0('input_files/TSI_chr',i, '_AF_2.frq')))->Pops_AF[['TSI']];
+#
+for(j in 1:4){for (i in 1:22){colnames(Pops_AF[[j]][[i]])<-c('CHR','POS','nAL', 'N_chr','AF')}}; #add colnames
+
+# clean up, remove indels, add MAF colum:
+for(j in 1:4){
+	for (i in 1:22){
+		Pops_AF[[j]][[i]] %>% dplyr::inner_join(Res_Alt_list[[i]]) %>% as.data.table -> Pops_AF[[j]][[i]];
+		Pops_AF[[j]][[i]] %>% dplyr::mutate(ID=paste0(CHR,"|",POS)) %>% arrange(POS) %>% as.data.table-> Pops_AF[[j]][[i]];
+		setkey(Pops_AF[[j]][[i]], ID); unique(Pops_AF[[j]][[i]]);
+	}
+	print (j);
+}
+
+for (j in 1:4){
+	for (i in 1:22){
+		Pops_AF[[j]][[i]][-(grep("\\b[A-Z]{2,}:\\b",Pops_AF[[j]][[i]]$AF)),] %>% arrange(POS) %>% as.data.table -> Pops_AF[[j]][[i]];#exclude lines with indels etc
+		gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",Pops_AF[[j]][[i]]$AF))))-> Pops_AF[[j]][[i]]$AF; #clean up and keep only AF
+		setDT(Pops_AF[[j]][[i]])[, paste0("AF", 1:3) := tstrsplit(AF, ";")]; #split AF into 3 cols
+		as.numeric(Pops_AF[[j]][[i]]$AF1)-> Pops_AF[[j]][[i]]$AF1; as.numeric(Pops_AF[[j]][[i]]$AF2)-> Pops_AF[[j]][[i]]$AF2; as.numeric(Pops_AF[[j]][[i]]$AF3)-> Pops_AF[[j]][[i]]$AF3; #make them numeric
+		Pops_AF[[j]][[i]] %>% dplyr::mutate(MAF=pmin(AF1,AF2,AF3, na.rm=T)) %>%  as.data.table -> Pops_AF[[j]][[i]];
+		}
+	print (j);
+	}
+
+#remove MAF=0 and MAF=1
+for(j in 1:4){
+	for (i in 1:22){
+		Pops_AF[[j]][[i]] %>% dplyr::filter(!(MAF==0|MAF==1)) %>% as.data.table -> Pops_AF[[j]][[i]];
+	}
+}
+
+#### PLayground with NCD functions #################################
+source('NCD_func.R')
+
+system.time(NCD1(X=LWK_chr4_AF_3, W=3000, S=1500)->out) #running NCD1  
+gc()
+system.time(NCD1(X=YRI_chr4_AF_3, W=3000, S=1500)->out_YRI) #1422.759 
+gc()
+system.time(NCD1(X=GBR_chr4_AF_3, W=3000, S=1500)->out_GBR)
+gc()
+system.time(NCD1(X=TSI_chr4_AF_3, W=3000, S=1500)->out_TSI)  # 10130.651 
+gc()
+
+#NCD1 within inversion compared to chromosome 4....(i tried smaller, 1 kb windows, but turns out I had several with few SNPs, so I am going abck to 3 kb)
+filter(var_dt, Type=="PrivateStd")$POS->a
+system.time(NCD1(X=LWK_chr4_AF_3 %>% dplyr::filter(POS %in% var_dt$POS) %>% as.data.table, W=3000, S=1500)-> out_LWK_inv)
+system.time(NCD1(X=LWK_chr4_AF_3 %>% dplyr::filter(POS %in% a) %>% as.data.table, W=3000, S=1500)-> out_LWK_inv_PrivStd)
+
+ecdf_fun <- function(x,perc) ecdf(x)(perc) #http://stats.stackexchange.com/questions/50080/estimate-quantile-of-value-in-a-vector
+
+ecdf_fun(out$tf0.5, min(out_LWK_inv$tf0.5))[1]*100 #1.14% lower tail
+
+ecdf_fun(out$tf0.5, min(out_LWK_inv_PrivStd$tf0.5))[1]*100  #0.5920426 %
+
+ecdf_fun(out$tf0.4, min(out_LWK_inv$tf0.4))[1]*100 # 1.744926 %
+
+ecdf_fun(out$tf0.4, min(out_LWK_inv_PrivStd$tf0.4))[1]*100 # 0.6064437 %
+
+ecdf_fun(out$tf0.3, min(out_LWK_inv$tf0.3))[1]*100 # 6.184445 %
+
+ecdf_fun(out$tf0.3, min(out_LWK_inv_PrivStd$tf0.3))[1]*100 # 0.9528686 %
+#inversion
 
 w<-40247234-40224426 #22208 bp, pretty big...
 
 
-
-
-
 ### perhaps obsolete (check later)
-system('sed \'s/\t/  /\'  freq_chr4_inv.txt.frq.count  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/\'|sed \'s/\t/;/\'|sed \'s/  /\t/g\' > freq_inv.txt')
+#system('sed \'s/\t/  /\'  freq_chr4_inv.txt.frq.count  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/\'|sed \'s/\t/;/\'|sed \'s/  /\t/g\' > freq_inv.txt')
 
-fread('freq_inv.txt')-> freq_inv #global frequencies of the SNPs in the inversion. If I want pop specific it will require some further filtering.
-colnames(freq_inv)[5]<- gsub(":","_",gsub("\\{|\\}","", colnames(freq_inv)[5])) #fix col name
+#fread('freq_inv.txt')-> freq_inv #global frequencies of the SNPs in the inversion. If I want pop specific it will require some further filtering.
+#colnames(freq_inv)[5]<- gsub(":","_",gsub("\\{|\\}","", colnames(freq_inv)[5])) #fix col name
 #index vcf
 
-system('cat header2.txt test2.vcf.recode.vcf > real_vcf')
+#system('cat header2.txt test2.vcf.recode.vcf > real_vcf')
 
-fread('real_vcf', header=T)-> chr4_inv_vcf #read in vcf
+#fread('real_vcf', header=T)-> chr4_inv_vcf #read in vcf
 
 #adding a header to this data.table
 #colnames(chr4_inv_vcf)<-unlist(strsplit(gsub("#","",system('tail -n 1 header.txt', intern=T)), "\t"))
-chr4_simp<- select(chr4_inv_vcf, CHROM:FORMAT)
+#chr4_simp<- select(chr4_inv_vcf, CHROM:FORMAT)
 #join var_dt to frequency info
-left_join(freq_inv, var_dt) %>% as.data.table -> comp_dt
+#left_join(freq_inv, var_dt) %>% as.data.table -> comp_dt
 #now use chimp info:
 
 nrow(HC_div) #209 FD in the inversion +- 10 kb
@@ -224,8 +269,8 @@ comp_dt %>% dplyr::group_by(Type) %>% dplyr::summarise(N=n(), D=209, Dcor=180, P
 
 #i got this from http://grch37.ensembl.org/Homo_sapiens/Tools/AlleleFrequency
 
-fread('calculated_fra.40225087-40246984.ALL.txt', sep="\t")-> ens_inv
-colnames(ens_inv)[1]<-'CHROM'
+#fread('calculated_fra.40225087-40246984.ALL.txt', sep="\t")-> ens_inv
+#colnames(ens_inv)[1]<-'CHROM'
 
 #add ancestral info
 
@@ -244,4 +289,4 @@ yay2 %>% dplyr::mutate(RefAnc=ifelse(REF==ANC, 'TRUE', 'FALSE')) %>% as.data.tab
 ### END OF OBSOLETE #### END OF OBSOLETE #### END OF OBSOLETE #####
 ###################################################################
 
-
+#PRoject: consider extending all of the above to the other inversions as well...

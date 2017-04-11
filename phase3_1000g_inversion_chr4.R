@@ -2,47 +2,49 @@
 #	Use Phase 1 1000G data to verify allele frequencies within inversion in chr4
 #	Bárbara Bitarello
 #	Created: 14.02.2017
-#	Last modified: 04.04.2017
+#	Last modified: 10.04.2017
 ##########################################################################################
 
 #preamble
-library(pegas)
-library(dplyr)
-library(plyr)
-library(data.table)
-library(parallel)
-library(lattice)
-library(SOAR)
-Sys.setenv(R_LOCAL_CACHE="inversions")
-library(ggplot2)
-library(splitstackshape)
+library(pegas);library(dplyr)
+library(plyr);library(data.table)
+library(parallel);library(lattice)
+library(SOAR);Sys.setenv(R_LOCAL_CACHE="inversions")
+library(ggplot2);library(splitstackshape)
+library(pryr)
 #biocLite(VariantAnnotation)
-library(vcfR)
-source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/bedtools_inR.R')
-source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/SFS_script.r')
+library(vcfR);library(doMC)
+registerDoMC(2)
+#source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/bedtools_inR.R')
+#source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/SFS_script.r')
 source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/mclapply2.R')
-source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/SFS_script.r')
-
-#load('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/read_scan_data/list.SCAN.3.RData')
+#source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/SFS_script.r')
 ####
 #read in data 
-
 #Inversions file:
 fread('input_files/VariantsClassified_HsInv0102_using434Ph3Samples.txt')-> var_dt
-
 #human-chimp divergence file:
-'zcat < /mnt/sequencedb/PopGen/barbara/NCV_dir_package/input_data/outgroup_files/fds.chr4.hg19_pantro2.Map50_100.TRF.SDs.bed.gz' %>%
-data.table::fread(sep='\t') -> HC_div
-colnames(HC_div)<-c('CHROM', 'POS', 'REF', 'Chimp_REF')
+
+FD_list<-factor('list',22)
+mclapply2(1:22, function(i)
+paste0('zcat < /mnt/sequencedb/PopGen/barbara/NCV_dir_package/input_data/outgroup_files/fds.chr', i, '.hg19_pantro2.Map50_100.TRF.SDs.bed.gz') %>%
+data.table::fread(sep='\t')) -> FD_list
+
+for (i in 1:22){
+colnames(FD_list[[i]])<-c('CHROM', 'POS', 'REF', 'Chimp_REF')
+FD_list[[i]] %>% mutate(ID=paste0(CHROM,"|",POS)) %>% as.data.table -> FD_list[[i]]
+}
 
 #use uppercase
-HC_div1<-HC_div %>% dplyr::mutate(REF=toupper(REF), Chimp_REF=toupper(Chimp_REF)) %>% dplyr::filter(POS>=40224426 & POS<= 40247234) %>% as.data.table  #select range of inversions +- 10 kb
-HC_div2<-HC_div %>% dplyr::mutate(REF=toupper(REF), Chimp_REF=toupper(Chimp_REF)) %>% as.data.table  #all FDs for chr4
+mclapply2(1:22, function(i)
+#HC_div1<-HC_div %>% dplyr::mutate(REF=toupper(REF), Chimp_REF=toupper(Chimp_REF)) %>% dplyr::filter(POS>=40224426 & POS<= 40247234) %>% as.data.table  #select range of inversions +- 10 kb
+FD_list[[i]] %>% dplyr::mutate(REF=toupper(REF), Chimp_REF=toupper(Chimp_REF)) %>% as.data.table) -> FD_list
 
+Store(FD_list)
 #######################################################################
 ##################   SFS SFS SFS SFS SFS SFS SFS ######################
 #######################################################################
-# SKIP to LINE 115
+# SKIP to LINE 111
 #TO DO: SO FAR I DID THIS ONLY FOR THE INVERSION IN CHR4. COULD CONSIDER DOING IT FOR ALL (37).
 
 #see in README. how we recoded the chr4 phase 3 vcf file so that ALT==DERIVED
@@ -153,12 +155,17 @@ system('rm input_files/*AF.frq')
 system('rm input_files/*AF.log')
 #####
 #
+Objects()
+
 mclapply2(1:22, function(i)
 fread(paste0("gunzip -c /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr", i, ".phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz|grep \"^[^#;]\"|awk \'{print $1,$2,$4,$5}\'")))-> Res_Alt_list
 
 for(i in 1:22){colnames(Res_Alt_list[[i]])<-c("CHR","POS","REF","ALT")};
 
-Store(Res_Alt_list); Objects();
+Store(Res_Alt_list); 
+Objects();
+Res_Alt_list[[22]];
+
 #
 tmp<-vector('list',22);Pops_AF<-list(LWK=tmp, YRI=tmp, GBR=tmp, TSI=tmp); #create list for freq files
 mclapply2(1:22, function(i) fread(paste0('input_files/LWK_chr',i, '_AF_2.frq')))->Pops_AF[['LWK']];
@@ -168,46 +175,71 @@ mclapply2(1:22, function(i) fread(paste0('input_files/TSI_chr',i, '_AF_2.frq')))
 #
 for(j in 1:4){for (i in 1:22){colnames(Pops_AF[[j]][[i]])<-c('CHR','POS','nAL', 'N_chr','AF')}}; #add colnames
 
-# clean up, remove indels, add MAF colum:
+#remove duplicated positions...
 for(j in 1:4){
-	for (i in 1:22){
-		Pops_AF[[j]][[i]] %>% dplyr::inner_join(Res_Alt_list[[i]]) %>% as.data.table -> Pops_AF[[j]][[i]];
-		Pops_AF[[j]][[i]] %>% dplyr::mutate(ID=paste0(CHR,"|",POS)) %>% arrange(POS) %>% as.data.table-> Pops_AF[[j]][[i]];
-		setkey(Pops_AF[[j]][[i]], ID); unique(Pops_AF[[j]][[i]]);
-	}
-	print (j);
-}
-
-for (j in 1:4){
-	for (i in 1:22){
-		Pops_AF[[j]][[i]][-(grep("\\b[A-Z]{2,}:\\b",Pops_AF[[j]][[i]]$AF)),] %>% arrange(POS) %>% as.data.table -> Pops_AF[[j]][[i]];#exclude lines with indels etc
-		gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",Pops_AF[[j]][[i]]$AF))))-> Pops_AF[[j]][[i]]$AF; #clean up and keep only AF
-		setDT(Pops_AF[[j]][[i]])[, paste0("AF", 1:3) := tstrsplit(AF, ";")]; #split AF into 3 cols
-		as.numeric(Pops_AF[[j]][[i]]$AF1)-> Pops_AF[[j]][[i]]$AF1; as.numeric(Pops_AF[[j]][[i]]$AF2)-> Pops_AF[[j]][[i]]$AF2; as.numeric(Pops_AF[[j]][[i]]$AF3)-> Pops_AF[[j]][[i]]$AF3; #make them numeric
-		Pops_AF[[j]][[i]] %>% dplyr::mutate(MAF=pmin(AF1,AF2,AF3, na.rm=T)) %>%  as.data.table -> Pops_AF[[j]][[i]];
+        	for (i in 1:22){
+			Pops_AF[[j]][[i]] %>% dplyr::mutate(ID=paste0(CHR,"|",POS)) %>% arrange(POS) %>% as.data.table-> Pops_AF[[j]][[i]];
+			setkey(Pops_AF[[j]][[i]], ID); unique(Pops_AF[[j]][[i]])-> Pops_AF[[j]][[i]];
+			Pops_AF[[j]][[i]] %>% dplyr::left_join(Res_Alt_list[[i]]) %>% arrange(POS) %>% as.data.table -> Pops_AF[[j]][[i]];
+			setkey(Pops_AF[[j]][[i]], ID); unique(Pops_AF[[j]][[i]])-> Pops_AF[[j]][[i]];
+			Pops_AF[[j]][[i]][-(grep("\\b[A-Z]{2,}:\\b",Pops_AF[[j]][[i]]$AF)),] %>% arrange(POS) %>% as.data.table -> Pops_AF[[j]][[i]];#exclude lines with indels etc
+			print(i);
 		}
-	print (j);
+	gc(); print (j);
 	}
 
+# allele frequencies:
+for (j in 1:4){
+		for (i in 1:22){
+#		Pops_AF[[j]][[i]][-(grep("\\b[A-Z]{2,}:\\b",Pops_AF[[j]][[i]]$AF)),] %>% arrange(POS) %>% as.data.table -> Pops_AF[[j]][[i]];#exclude lines with indels etc
+			gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",Pops_AF[[j]][[i]]$AF))))-> Pops_AF[[j]][[i]]$AF; #clean up and keep only AF
+			setDT(Pops_AF[[j]][[i]])[, paste0("AF", 1:3) := tstrsplit(AF, ";")]; #split AF into 3 cols
+			as.numeric(Pops_AF[[j]][[i]]$AF1)-> Pops_AF[[j]][[i]]$AF1; as.numeric(Pops_AF[[j]][[i]]$AF2)-> Pops_AF[[j]][[i]]$AF2; as.numeric(Pops_AF[[j]][[i]]$AF3)-> Pops_AF[[j]][[i]]$AF3; #make them numeric
+			Pops_AoF[[j]][[i]] %>% dplyr::mutate(MAF=pmin(AF1,AF2,AF3, na.rm=T)) %>%  as.data.table -> Pops_AF[[j]][[i]];
+			print(i);
+		}
+	gc(); print (j);
+	}	
+
+
+save(Pops_AF, file="Pops_AF.RData") #too big and took a very long time to save and to load.
+system.time(saveRDS(Pops_AF,file="Pops_AF_v2.RData",compress=F)) #301.032
 #remove MAF=0 and MAF=1
-for(j in 1:4){
-	for (i in 1:22){
-		Pops_AF[[j]][[i]] %>% dplyr::filter(!(MAF==0|MAF==1)) %>% as.data.table -> Pops_AF[[j]][[i]];
-	}
-}
+#for(j in 1:4){
+#	for (i in 1:22){
+#		Pops_AF[[j]][[i]] %>% dplyr::filter(!(MAF==0|MAF==1)) %>% as.data.table -> Pops_AF[[j]][[i]];
+#	}
+#}
 
 #### PLayground with NCD functions #################################
+object_size(Pops_AF); #29 Gb!!
+mem_change(Pops_AF<-Pops_AF);
+#system.time(load('Pops_AF.RData')) #653.196 
+system.time(readRDS("Pops_AF_v2.RData")-> Pops_AF) #391.435  #it is better, indeed
 source('NCD_func.R')
 
-system.time(NCD1(X=LWK_chr4_AF_3, W=3000, S=1500)->out) #running NCD1  
-gc()
-system.time(NCD1(X=YRI_chr4_AF_3, W=3000, S=1500)->out_YRI) #1422.759 
-gc()
-system.time(NCD1(X=GBR_chr4_AF_3, W=3000, S=1500)->out_GBR)
-gc()
-system.time(NCD1(X=TSI_chr4_AF_3, W=3000, S=1500)->out_TSI)  # 10130.651 
 gc()
 
+system.time(LWK_chr222<-NCD1(Pops_AF[[1]][[22]], W=3000, S=1500)) # 621.859 
+
+system.time(NCD2(X,Y,W=3000,S=1500)-> test.chr21.LWK.ncd2) #sabe test for ncd2 chr21 1247.931 seconds (20 min). Not awesome but acceptable
+Pops_AF[[1]]-> LWK
+remove(Pops_AF); gc()
+
+res_LWK_NCD1<-vector('list', 22)
+gc()
+system.time(do.call(rbind, mclapply2(1:22, function(x) NCD1(LWK[[x]], W=3000, S=1500)))-> res_LWK_NCD1)
+
+
+#X<- Pops_AF[[1]][[21]]
+#Y<-FD_list[[21]]
+#W=3000,S=15000
+system.time(NCD2(X,Y,W,S)-> test.chr21.LWK.ncd2)
+####################### ################################# ###############################
+####################### ################################# ###############################
+####################### ################################# ###############################
+####################### ################################# ###############################
+####################### ################################# ###############################
 #NCD1 within inversion compared to chromosome 4....(i tried smaller, 1 kb windows, but turns out I had several with few SNPs, so I am going abck to 3 kb)
 filter(var_dt, Type=="PrivateStd")$POS->a
 system.time(NCD1(X=LWK_chr4_AF_3 %>% dplyr::filter(POS %in% var_dt$POS) %>% as.data.table, W=3000, S=1500)-> out_LWK_inv)

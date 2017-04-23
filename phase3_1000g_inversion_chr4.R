@@ -2,7 +2,7 @@
 #	Use Phase 1 1000G data to verify allele frequencies within inversion in chr4
 #	Bárbara Bitarello
 #	Created: 14.02.2017
-#	Last modified: 10.04.2017
+#	Last modified: 21.04.2017
 ##########################################################################################
 
 #preamble
@@ -14,10 +14,12 @@ library(ggplot2);library(splitstackshape)
 library(pryr)
 #biocLite(VariantAnnotation)
 library(vcfR);library(doMC)
-registerDoMC(2)
+registerDoMC(11);library(bigmemory);
 #source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/bedtools_inR.R')
 #source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/SFS_script.r')
 source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/mclapply2.R')
+source('NCD_func.R')
+my_cores<-detectCores()/4
 #source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/SFS_script.r')
 ####
 #read in data 
@@ -216,26 +218,115 @@ object_size(Pops_AF); #29 Gb!!
 mem_change(Pops_AF<-Pops_AF);
 #system.time(load('Pops_AF.RData')) #653.196 
 system.time(readRDS("Pops_AF_v2.RData")-> Pops_AF) #391.435  #it is better, indeed
-source('NCD_func.R')
+#source('NCD_func.R')
 
 gc()
 
-system.time(LWK_chr222<-NCD1(Pops_AF[[1]][[22]], W=3000, S=1500)) # 621.859 
-
-system.time(NCD2(X,Y,W=3000,S=1500)-> test.chr21.LWK.ncd2) #sabe test for ncd2 chr21 1247.931 seconds (20 min). Not awesome but acceptable
-Pops_AF[[1]]-> LWK
-remove(Pops_AF); gc()
-
-res_LWK_NCD1<-vector('list', 22)
-gc()
-system.time(do.call(rbind, mclapply2(1:22, function(x) NCD1(LWK[[x]], W=3000, S=1500)))-> res_LWK_NCD1)
-
+#system.time(LWK_chr222<-NCD1(Pops_AF[[1]][[22]], W=3000, S=1500)) # 621.859 
 
 #X<- Pops_AF[[1]][[21]]
 #Y<-FD_list[[21]]
-#W=3000,S=15000
-system.time(NCD2(X,Y,W,S)-> test.chr21.LWK.ncd2)
-####################### ################################# ###############################
+#system.time(NCD2(X,Y,W=3000,S=1500)-> test.chr21.LWK.ncd2) #sabe test for ncd2 chr21 1247.931 seconds (20 min). Not awesome but acceptable
+Pops_AF[[1]]-> LWK
+remove(Pops_AF); gc()
+
+gc()
+system.time(do.call(rbind, mclapply2(1:22, function(x) NCD1(X=LWK[[x]], W=3000, S=1500, cores=30), mc.cores=16, mc.silent=FALSE))-> res_LWK_NCD1) #running in bionc01... 11.04 #a thought: why not use more cores? i think the defualt is 2...
+
+system.time(do.call(rbind, mclapply2(1:22, function(x) NCD2(X=LWK[[x]], Y=FD_list[[x]], W=3000, S=1500, cores=30), mc.cores=16, mc.silent=FALSE))-> res_LWK_NCD2) #running in bionc03 ...11.04
+
+#having crashes here, let's try another approach:(with big windows for testing)
+
+#system.time(a21_22<-foreach(x=21:22, .combine="rbind", .packages=c("data.table")) %dopar%
+#NCD1(X=LWK[[x]], W=3000, S=1500, cores=12));
+#system.time(saveRDS(a21_22,file="NCD1_21_22.RData",compress=F)) #bionc01
+
+# WOWWW
+
+system.time(NCD1(X=LWK[[22]], W=3000, S=1500, cores=12)-> NCD1_chr22); # 180
+system.time(saveRDS(NCD1_chr22,file="NCD1_chr22.RData",compress=F)) 
+remove(NCD1_chr22)
+
+system.time(NCD1(X=LWK[[21]], W=3000, S=1500, cores=32)-> NCD1_chr21); #233358.265
+system.time(saveRDS(NCD1_chr21,file="NCD1_chr21.RData",compress=F)) #
+remove(NCD1_chr21);
+
+system.time(NCD1(X=LWK[[20]], W=3000, S=1500, cores=12)-> NCD1_chr20); #433.341 
+system.time(saveRDS(NCD1_chr20,file="NCD1_chr20.RData",compress=F)); #
+remove(NCD1_chr20);
+
+system.time(NCD1(X=LWK[[19]], W=3000, S=1500, cores=22)-> NCD1_chr19); #82674.00
+system.time(saveRDS(NCD1_chr19,file="NCD1_chr19.RData",compress=F)); #
+remove(NCD1_chr19);
+
+system.time(NCD1(X=LWK[[18]], W=3000, S=1500, cores=my_cores)-> NCD1_chr18); #bionc02
+system.time(saveRDS(NCD1_chr18,file="NCD1_chr18.RData",compress=F)); #
+remove(NCD1_chr18);
+
+system.time(NCD1(X=LWK[[17]], W=3000, S=1500, cores=10)-> NCD1_chr17); #1550.926 
+system.time(saveRDS(NCD1_chr17,file="NCD1_chr17.RData",compress=F)); #
+remove(NCD1_chr17);
+
+
+system.time(NCD1(X=LWK[[16]], W=3000, S=1500, cores=10)-> NCD1_chr16) #840.809
+system.time(saveRDS(NCD1_chr16,file="NCD1_chr16.RData",compress=F)); #
+remove(NCD1_chr16);
+
+
+system.time(NCD1(X=LWK[[15]], W=3000, S=1500, cores=8)-> NCD1_chr15) #130722.10
+system.time(saveRDS(NCD1_chr15,file="NCD1_chr15.RData",compress=F)); #
+remove(NCD1_chr15);
+
+system.time(NCD1(X=LWK[[14]], W=3000, S=1500, cores=10)-> NCD1_chr14) #1390.038
+system.time(saveRDS(NCD1_chr14,file="NCD1_chr14.RData",compress=F)); #
+remove(NCD1_chr14);
+
+system.time(NCD1(X=LWK[[13]], W=3000, S=1500, cores=10)-> NCD1_chr13) #161336.84
+system.time(saveRDS(NCD1_chr13,file="NCD1_chr13.RData",compress=F)); #
+remove(NCD1_chr13);
+
+
+system.time(NCD1(X=LWK[[12]], W=3000, S=1500, cores=32)-> NCD1_chr12); #1499.154
+system.time(saveRDS(NCD1_chr12,file="NCD1_chr12.RData",compress=F)); #
+remove(NCD1_chr12);
+
+system.time(NCD1(X=LWK[[11]], W=3000, S=1500, cores=my_cores)-> NCD1_chr11); #bionc03
+system.time(saveRDS(NCD1_chr11,file="NCD1_chr11.RData",compress=F)); #
+remove(NCD1_chr11);
+
+system.time(NCD1(X=LWK[[10]], W=3000, S=1500, cores=32)-> NCD1_chr10); # 2025.542
+system.time(saveRDS(NCD1_chr10,file="NCD1_chr10.RData",compress=F)); remove(NCD1_chr10);
+
+system.time(NCD1(X=LWK[[9]], W=3000, S=1500, cores=32)-> NCD1_chr9); #1608.131 
+system.time(saveRDS(NCD1_chr9,file="NCD1_chr9.RData",compress=F)); remove(NCD1_chr9);
+
+system.time(NCD1(X=LWK[[8]], W=3000, S=1500, cores=32)-> NCD1_chr8); #1993.388
+system.time(saveRDS(NCD1_chr8,file="NCD1_chr8.RData",compress=F)); remove(NCD1_chr8);
+
+system.time(NCD1(X=LWK[[7]], W=3000, S=1500, cores=32)-> NCD1_chr7); # bionc04
+system.time(saveRDS(NCD1_chr7,file="NCD1_chr7.RData",compress=F)); remove(NCD1_chr7);
+
+system.time(NCD1(X=LWK[[6]], W=3000, S=1500, cores=32)-> NCD1_chr6); #2643.937
+system.time(saveRDS(NCD1_chr6,file="NCD1_chr6.RData",compress=F)); remove(NCD1_chr6);
+
+system.time(NCD1(X=LWK[[5]], W=3000, S=1500, cores=32)-> NCD1_chr5); #2661.527
+system.time(saveRDS(NCD1_chr5,file="NCD1_chr5.RData",compress=F)); remove(NCD1_chr5);
+
+system.time(NCD1(X=LWK[[4]], W=3000, S=1500, cores=32)-> NCD1_chr4); # binc12
+system.time(saveRDS(NCD1_chr4,file="NCD1_chr4.RData",compress=F)); remove(NCD1_chr4);
+
+system.time(NCD1(X=LWK[[3]], W=3000, S=1500, cores=32)-> NCD1_chr3); #bionc06
+system.time(saveRDS(NCD1_chr3,file="NCD1_chr3.RData",compress=F)); remove(NCD1_chr3);
+
+system.time(NCD1(X=LWK[[2]], W=3000, S=1500, cores=my_cores/2)-> NCD1_chr2); #bionc01
+system.time(saveRDS(NCD1_chr2,file="NCD1_chr2.RData",compress=F)); remove(NCD1_chr2);
+
+system.time(NCD1(X=LWK[[1]], W=3000, S=1500, cores=32)-> NCD1_chr1); #5038.725 
+system.time(saveRDS(NCD1_chr1,file="NCD1_chr1.RData",compress=F)); #
+remove(NCD1_chr1);
+
+
+
 ####################### ################################# ###############################
 ####################### ################################# ###############################
 ####################### ################################# ###############################

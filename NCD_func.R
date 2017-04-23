@@ -8,51 +8,61 @@
 #S-> SLIDE szie (e.g. W/2, but could also be 1, to check each SNP...)
 
 
-NCD1<-function(X,W=100000,S=50000){ #: data table, W= window size S: slide window 
+NCD1<-function(X,W=100000,S=50000, cores=30){ #: data table, W= window size S: slide window 
 b<-seq(X[1,POS],X[nrow(X), POS],S); #beggining positions
 e<-b+W; #end positions
 CHR<-unique(X$CHR); #make error message if this is longer than one.
 id<-paste0(CHR,"|", b, "|", e);
-tmp<-mclapply2(1:(length(b)-1), 
-function(i) dplyr::filter(X, POS>=b[i], POS<e[i]) %>% as.data.table)
-ncd1_a<-mclapply2(1:length(tmp), function(i)
-tmp[[i]] %>% dplyr::summarise(Beg.Win=b[i], End.Win=e[i],N_SNPs=n(), Win.ID=id[i]) %>% mutate(Chr=CHR) %>% as.data.table)
-ncd1_b<- mclapply2(1:length(tmp), function(j)
-tmp[[j]] %>% dplyr::filter(!(MAF==0|MAF==1)) %>% dplyr::summarise(N_SNPs_cor= n(),NCD1_tf0.5=sqrt(sum((MAF-0.5)^2)/N_SNPs_cor),NCD1_tf0.4=sqrt(sum((MAF-0.4)^2)/N_SNPs_cor), NCD1_tf0.3=sqrt(sum((MAF-0.3)^2)/N_SNPs_cor)) %>% mutate(Win.ID=id[j]) %>% as.data.table)
-ncd1_c<- do.call(rbind, mclapply2(1:length(ncd1_a),function(i) left_join(ncd1_a[[i]], ncd1_b[[i]], by="Win.ID"))) %>% as.data.table
-remove(ncd1_a, ncd1_b); gc(); return(ncd1_c); }
+length(b)-1 -> len
+tmp<-mclapply2(1:len, 
+function(i) dplyr::filter(X, POS>=b[i], POS<e[i]) %>% as.data.table, mc.cores=cores);
+print(paste0("Finished setting up SNP for chr", CHR));
+ncd1_a<-mclapply2(1:len, function(i)
+tmp[[i]] %>% dplyr::summarise(Beg.Win=b[i], End.Win=e[i],N_SNPs=n(), Win.ID=id[i]) %>% mutate(Chr=CHR) %>% as.data.table, mc.cores=cores);
+ncd1_b<- mclapply2(1:len, function(j)
+tmp[[j]] %>% dplyr::filter(!(MAF==0|MAF==1)) %>% dplyr::summarise(N_SNPs_cor= n(),NCD1_tf0.5=sqrt(sum((MAF-0.5)^2)/N_SNPs_cor),NCD1_tf0.4=sqrt(sum((MAF-0.4)^2)/N_SNPs_cor), NCD1_tf0.3=sqrt(sum((MAF-0.3)^2)/N_SNPs_cor)) %>% mutate(Win.ID=id[j]) %>% as.data.table, mc.cores=cores);
+print(paste0("Finished filtering segregating SNPs for chr ", CHR));
+ncd1_c<- do.call(rbind, mclapply2(1:len,function(i) left_join(ncd1_a[[i]], ncd1_b[[i]], by="Win.ID"),mc.cores=cores)) %>% as.data.table;
+print(paste0("Finished NCD1 calculations for chr", CHR));
+return(ncd1_c); }
 
 ############################################################################################
 ####### NCD2 ######### NCD2 ########### NCD2 ########## NCD2 ############ NCD2 #############
 ############################################################################################
 #mclapply2
-NCD2<-function(X,Y,W=3000,S=1500){
+
+NCD2<-function(X,Y,W=3000,S=1500, cores=30){
 b<-seq(X[1,POS],X[nrow(X), POS],S); #beggining positions
 e<-b+W; #end positions
 CHR<-unique(X$CHR); #make error message if this is longer than one.
 id<-paste0(CHR,"|",b, "|", e);
 length(b)-1 -> len
-tmp_snp<-mclapply2(1:len,function(i) dplyr::filter(X, POS>=b[i], POS<e[i]) %>% as.data.table); #SNP
-tmp_fd<-mclapply2(1:len,function(i) dplyr::filter(Y, POS>=b[i], POS<e[i]) %>% as.data.table); #FD
+tmp_snp<-mclapply2(1:len,function(i) dplyr::filter(X, POS>=b[i], POS<e[i]) %>% as.data.table, mc.cores=cores); #SNP
+print(paste0("Finished setting up SNPs for chr",CHR));
+tmp_fd<-mclapply2(1:len,function(i) dplyr::filter(Y, POS>=b[i], POS<e[i]) %>% as.data.table, mc.cores=cores); #FD
 #filter MAF==0 and MAF==1
-tmp2_snp<-mclapply2(1:len, function(x) tmp_snp[[x]] %>% dplyr::filter(!(MAF==0|MAF==1)) %>% as.data.table);
+print(paste0("Finished setting up FDs for chr", CHR));
+tmp2_snp<-mclapply2(1:len, function(x) tmp_snp[[x]] %>% dplyr::filter(!(MAF==0|MAF==1)) %>% as.data.table, mc.cores=cores);
+print(paste0("Finished filtering segregating SNPs for chr", CHR));
+tmp_fd_SNP<- mclapply2(1:len, function(x) as.vector(inner_join(tmp_fd[[x]], tmp2_snp[[x]], by="ID") %>% filter(ALT==Chimp_REF) %>% select(ID) %>% as.data.table)[,ID], mc.cores=cores); #Fd positions that are also SNP positions.Save positions to remove from FD
 
-tmp_fd_SNP<- mclapply2(1:len, function(x) as.vector(inner_join(tmp_fd[[x]], tmp2_snp[[x]], by="ID") %>% filter(ALT==Chimp_REF) %>% select(ID) %>% as.data.table)[,ID]); #Fd positions that are also SNP positions.Save positions to remove from FD
- 
-tmp3_snp<-mclapply2(1:len, function(j) tmp_snp[[j]]  %>% dplyr::summarise(Beg.Win=b[j], End.Win=e[j],N_SNPs=n(), Win.ID=id[j]) %>% mutate(Chr=CHR) %>% as.data.table); #initital # SNPs
+tmp3_snp<-mclapply2(1:len, function(j) tmp_snp[[j]]  %>% dplyr::summarise(Beg.Win=b[j], End.Win=e[j],N_SNPs=n(), Win.ID=id[j]) %>% mutate(Chr=CHR) %>% as.data.table,mc.cores=cores); #initital # SNPs
 
-tmp4_snp<-mclapply2(1:len, function(j) tmp2_snp[[j]]  %>% dplyr::summarise(N_SNPs_cor=n(), Win.ID=id[j]) %>% as.data.table); #actual number of segregating SNPs
+tmp4_snp<-mclapply2(1:len, function(j) tmp2_snp[[j]]  %>% dplyr::summarise(N_SNPs_cor=n(), Win.ID=id[j]) %>% as.data.table,mc.cores=cores); #actual number of segregating SNPs
 
-tmp2_fd <-mclapply2(1:len, function(j) tmp_fd[[j]]  %>% dplyr::summarise(N_FDs=n(),Win.ID=id[j]) %>%  as.data.table); #initial # FDs
+tmp2_fd <-mclapply2(1:len, function(j) tmp_fd[[j]]  %>% dplyr::summarise(N_FDs=n(),Win.ID=id[j]) %>%  as.data.table,mc.cores=cores); #initial # FDs
 
-tmp3_fd <- mclapply2(1:len, function(j) filter(tmp_fd[[j]], !(ID %in% tmp_fd_SNP[[j]])) %>% dplyr::summarise(N_FDs_cor=n(), Win.ID=id[j]) %>% as.data.table); #corrected number of FDs
+tmp3_fd <- mclapply2(1:len, function(j) filter(tmp_fd[[j]], !(ID %in% tmp_fd_SNP[[j]])) %>% dplyr::summarise(N_FDs_cor=n(), Win.ID=id[j]) %>% as.data.table, mc.cores=cores); #corrected number of FDs
+print(paste0("Finished correcting FD number for chr", CHR));
 
-tmp4<-mclapply2(1:len, function(x) data.frame(Win.ID=id[x], NCD2_tf0.5=sqrt(sum((c(rep(0,tmp3_fd[[x]]$N_FDs_cor),tmp4_snp[[x]]$MAF)-0.5)^2)/(tmp4_snp[[x]]$N_SNPs_cor+tmp3_fd[[x]]$N_FDs_cor)), NCD2_tf0.4=sqrt(sum((c(rep(0,tmp3_fd[[x]]$N_FDs_cor),tmp4_snp[[x]]$MAF)-0.4)^2)/(tmp4_snp[[x]]$N_SNPs_cor+tmp3_fd[[x]]$N_FDs_cor)), NCD2_tf0.3=sqrt(sum((c(rep(0,tmp3_fd[[x]]$N_FDs_cor),tmp4_snp[[x]]$MAF)-0.3)^2)/(tmp4_snp[[x]]$N_SNPs_cor+tmp3_fd[[x]]$N_FDs_cor))) %>% as.data.table);
+tmp4<-mclapply2(1:len, function(x) data.frame(Win.ID=id[x], NCD2_tf0.5=sqrt(sum((c(rep(0,tmp3_fd[[x]]$N_FDs_cor),tmp4_snp[[x]]$MAF)-0.5)^2)/(tmp4_snp[[x]]$N_SNPs_cor+tmp3_fd[[x]]$N_FDs_cor)), NCD2_tf0.4=sqrt(sum((c(rep(0,tmp3_fd[[x]]$N_FDs_cor),tmp4_snp[[x]]$MAF)-0.4)^2)/(tmp4_snp[[x]]$N_SNPs_cor+tmp3_fd[[x]]$N_FDs_cor)), NCD2_tf0.3=sqrt(sum((c(rep(0,tmp3_fd[[x]]$N_FDs_cor),tmp4_snp[[x]]$MAF)-0.3)^2)/(tmp4_snp[[x]]$N_SNPs_cor+tmp3_fd[[x]]$N_FDs_cor))) %>% as.data.table, mc.cores=cores);
+print(paste0("Finished NCD2 calculations for chr", CHR));
 
-tmp5<-mclapply2(1: len, function(x) join_all(list(tmp3_snp[[x]],tmp4_snp[[x]],tmp2_fd[[x]], tmp3_fd[[x]], tmp4[[x]]), by='Win.ID', type='left') %>% as.data.table %>% mutate(PtoD=N_SNPs_cor/(N_FDs_cor+1)) %>% as.data.table);
+tmp5<-mclapply2(1: len, function(x) join_all(list(tmp3_snp[[x]],tmp4_snp[[x]],tmp2_fd[[x]], tmp3_fd[[x]], tmp4[[x]]), by='Win.ID', type='left') %>% as.data.table %>% mutate(PtoD=N_SNPs_cor/(N_FDs_cor+1)) %>% as.data.table,mc.cores=cores);
+print(paste0("Combining all info into data table"));
 ncd2<- do.call(rbind, tmp5) %>% as.data.table;
-#remove(tmp_snp, tmp_fd, tmp_fd_SNP, tmp3_snp, tmp4_snp, tmp2_fd, tmp3_fd, tmp4, tmp5); gc();
 return(ncd2);
+print("Done!");
 }
 ###########################################################################################
 ###########################################################################################
@@ -66,7 +76,7 @@ return(ncd2);
 #
 
 mclapply2 <- function(X, FUN, ..., 
-    mc.preschedule = TRUE, mc.set.seed = TRUE,
+    mc.preschedule = FALSE, mc.set.seed = TRUE,
     mc.silent = FALSE, mc.cores = getOption("mc.cores", 2L),
     mc.cleanup = TRUE, mc.allow.recursive = TRUE,
     mc.progress=TRUE, mc.style=3) 

@@ -207,7 +207,7 @@ for (j in 1:4){
 	}	
 
 
-save(Pops_AF, file="Pops_AF.RData") #too big and took a very long time to save and to load.
+#save(Pops_AF, file="Pops_AF.RData") #too big and took a very long time to save and to load.
 system.time(saveRDS(Pops_AF,file="Pops_AF_v2.RData",compress=F)) #301.032
 #remove MAF=0 and MAF=1
 #for(j in 1:4){
@@ -219,8 +219,8 @@ system.time(saveRDS(Pops_AF,file="Pops_AF_v2.RData",compress=F)) #301.032
 ####################################################################
 #### PLayground with NCD functions #################################
 ####################################################################
-object_size(Pops_AF); #29 Gb!!
-mem_change(Pops_AF<-Pops_AF);
+#object_size(Pops_AF); #29 Gb!!
+#mem_change(Pops_AF<-Pops_AF);
 #system.time(load('Pops_AF.RData')) #653.196 
 system.time(readRDS("Pops_AF_v2.RData")-> Pops_AF) #391.435  #it is better, indeed
 #source('NCD_func.R')
@@ -235,8 +235,11 @@ Pops_AF[[3]]-> GBR
 Pops_AF[[4]]-> TSI
 remove(Pops_AF); gc()
 
-system.time(do.call(rbind, mclapply2(1:22, function(x) NCD1(X=LWK[[x]], W=3000, S=1500, cores=30), mc.cores=16, mc.silent=FALSE))-> res_LWK_NCD1) #running in bionc01... 11.04 #a thought: why not use more cores? i think the defualt is 2...
-system.time(do.call(rbind, mclapply2(1:22, function(x) NCD2(X=LWK[[x]], Y=FD_list[[x]], W=3000, S=1500, cores=30), mc.cores=16, mc.silent=FALSE))-> res_LWK_NCD2) #running in bionc03 ...11.04
+#big block og obsolete stuff... ############
+#########################################################
+#obsolete:
+#system.time(do.call(rbind, mclapply2(1:22, function(x) NCD1(X=LWK[[x]], W=3000, S=1500, cores=30), mc.cores=16, mc.silent=FALSE))-> res_LWK_NCD1) #running in bionc01... 11.04 #a thought: why not use more cores? i think the defualt is 2...
+#system.time(do.call(rbind, mclapply2(1:22, function(x) NCD2(X=LWK[[x]], Y=FD_list[[x]], W=3000, S=1500, cores=30), mc.cores=16, mc.silent=FALSE))-> res_LWK_NCD2) #running in bionc03 ...11.04
 
 #having crashes here, let's try another approach:(with big windows for testing)
 
@@ -244,93 +247,78 @@ system.time(do.call(rbind, mclapply2(1:22, function(x) NCD2(X=LWK[[x]], Y=FD_lis
 #NCD1(X=LWK[[x]], W=3000, S=1500, cores=12));
 #system.time(saveRDS(a21_22,file="NCD1_21_22.RData",compress=F)) #bionc01
 
-# WOWWW
 
-system.time(NCD1(X=LWK[[22]], W=3000, S=1500, cores=12)-> NCD1_chr22); # 180
-system.time(saveRDS(NCD1_chr22,file="NCD1_chr22.RData",compress=F)) 
-remove(NCD1_chr22)
+#system.time(NCD1(X=LWK[[22]], W=3000, S=1500, cores=12)-> NCD1_chr22); # 180
+#system.time(saveRDS(NCD1_chr22,file="NCD1_chr22.RData",compress=F)); remove(NCD1_chr22)
 
-system.time(NCD1(X=LWK[[21]], W=3000, S=1500, cores=32)-> NCD1_chr21); #233358.265
-system.time(saveRDS(NCD1_chr21,file="NCD1_chr21.RData",compress=F)) #
-remove(NCD1_chr21);
+#system.time(NCD1(X=LWK[[21]], W=3000, S=1500, cores=32)-> NCD1_chr21); #233358.265
+#system.time(saveRDS(NCD1_chr21,file="NCD1_chr21.RData",compress=F)) remove(NCD1_chr21);
 
-system.time(NCD1(X=LWK[[20]], W=3000, S=1500, cores=12)-> NCD1_chr20); #433.341 
-system.time(saveRDS(NCD1_chr20,file="NCD1_chr20.RData",compress=F)); #
-remove(NCD1_chr20);
+#system.time(NCD1(X=LWK[[20]], W=3000, S=1500, cores=12)-> NCD1_chr20); #433.341 
+#system.time(saveRDS(NCD1_chr20,file="NCD1_chr20.RData",compress=F)); remove(NCD1_chr20);
 
-system.time(NCD1(X=LWK[[19]], W=3000, S=1500, cores=22)-> NCD1_chr19); #82674.00
-system.time(saveRDS(NCD1_chr19,file="NCD1_chr19.RData",compress=F)); #
-remove(NCD1_chr19);
+#system.time(NCD1(X=LWK[[19]], W=3000, S=1500, cores=22)-> NCD1_chr19); #82674.00
+#system.time(saveRDS(NCD1_chr19,file="NCD1_chr19.RData",compress=F)); remove(NCD1_chr19);
 
-system.time(NCD1(X=LWK[[18]], W=3000, S=1500, cores=my_cores)-> NCD1_chr18); #66802.80 
-system.time(saveRDS(NCD1_chr18,file="NCD1_chr18.RData",compress=F)); #
-remove(NCD1_chr18);
+#system.time(NCD1(X=LWK[[18]], W=3000, S=1500, cores=my_cores)-> NCD1_chr18); #66802.80 
+#system.time(saveRDS(NCD1_chr18,file="NCD1_chr18.RData",compress=F)); remove(NCD1_chr18);
 
-system.time(NCD1(X=LWK[[17]], W=3000, S=1500, cores=10)-> NCD1_chr17); #1550.926 
-system.time(saveRDS(NCD1_chr17,file="NCD1_chr17.RData",compress=F)); #
-remove(NCD1_chr17);
+#system.time(NCD1(X=LWK[[17]], W=3000, S=1500, cores=10)-> NCD1_chr17); #1550.926 
+#system.time(saveRDS(NCD1_chr17,file="NCD1_chr17.RData",compress=F)); remove(NCD1_chr17);
 
+#system.time(NCD1(X=LWK[[16]], W=3000, S=1500, cores=10)-> NCD1_chr16) #840.809
+#system.time(saveRDS(NCD1_chr16,file="NCD1_chr16.RData",compress=F)); remove(NCD1_chr16);
 
-system.time(NCD1(X=LWK[[16]], W=3000, S=1500, cores=10)-> NCD1_chr16) #840.809
-system.time(saveRDS(NCD1_chr16,file="NCD1_chr16.RData",compress=F)); #
-remove(NCD1_chr16);
+#system.time(NCD1(X=LWK[[15]], W=3000, S=1500, cores=8)-> NCD1_chr15) #130722.10
+#system.time(saveRDS(NCD1_chr15,file="NCD1_chr15.RData",compress=F)); remove(NCD1_chr15);
 
+#system.time(NCD1(X=LWK[[14]], W=3000, S=1500, cores=10)-> NCD1_chr14) #1390.038
+#system.time(saveRDS(NCD1_chr14,file="NCD1_chr14.RData",compress=F)); remove(NCD1_chr14);
 
-system.time(NCD1(X=LWK[[15]], W=3000, S=1500, cores=8)-> NCD1_chr15) #130722.10
-system.time(saveRDS(NCD1_chr15,file="NCD1_chr15.RData",compress=F)); #
-remove(NCD1_chr15);
+#system.time(NCD1(X=LWK[[13]], W=3000, S=1500, cores=10)-> NCD1_chr13) #161336.84
+#system.time(saveRDS(NCD1_chr13,file="NCD1_chr13.RData",compress=F)); remove(NCD1_chr13);
 
-system.time(NCD1(X=LWK[[14]], W=3000, S=1500, cores=10)-> NCD1_chr14) #1390.038
-system.time(saveRDS(NCD1_chr14,file="NCD1_chr14.RData",compress=F)); #
-remove(NCD1_chr14);
+#system.time(NCD1(X=LWK[[12]], W=3000, S=1500, cores=32)-> NCD1_chr12); #1499.154
+#system.time(saveRDS(NCD1_chr12,file="NCD1_chr12.RData",compress=F)); remove(NCD1_chr12);
 
-system.time(NCD1(X=LWK[[13]], W=3000, S=1500, cores=10)-> NCD1_chr13) #161336.84
-system.time(saveRDS(NCD1_chr13,file="NCD1_chr13.RData",compress=F)); #
-remove(NCD1_chr13);
+#system.time(NCD1(X=LWK[[11]], W=3000, S=1500, cores=my_cores)-> NCD1_chr11); #bionc03
+#system.time(saveRDS(NCD1_chr11,file="NCD1_chr11.RData",compress=F)); remove(NCD1_chr11);
 
+#system.time(NCD1(X=LWK[[10]], W=3000, S=1500, cores=32)-> NCD1_chr10); # 2025.542
+#system.time(saveRDS(NCD1_chr10,file="NCD1_chr10.RData",compress=F)); remove(NCD1_chr10);
 
-system.time(NCD1(X=LWK[[12]], W=3000, S=1500, cores=32)-> NCD1_chr12); #1499.154
-system.time(saveRDS(NCD1_chr12,file="NCD1_chr12.RData",compress=F)); #
-remove(NCD1_chr12);
+#system.time(NCD1(X=LWK[[9]], W=3000, S=1500, cores=32)-> NCD1_chr9); #1608.131 
+#system.time(saveRDS(NCD1_chr9,file="NCD1_chr9.RData",compress=F)); remove(NCD1_chr9);
 
-system.time(NCD1(X=LWK[[11]], W=3000, S=1500, cores=my_cores)-> NCD1_chr11); #bionc03
-system.time(saveRDS(NCD1_chr11,file="NCD1_chr11.RData",compress=F)); #
-remove(NCD1_chr11);
+#system.time(NCD1(X=LWK[[8]], W=3000, S=1500, cores=32)-> NCD1_chr8); #1993.388
+#system.time(saveRDS(NCD1_chr8,file="NCD1_chr8.RData",compress=F)); remove(NCD1_chr8);
 
-system.time(NCD1(X=LWK[[10]], W=3000, S=1500, cores=32)-> NCD1_chr10); # 2025.542
-system.time(saveRDS(NCD1_chr10,file="NCD1_chr10.RData",compress=F)); remove(NCD1_chr10);
+#system.time(NCD1(X=LWK[[7]], W=3000, S=1500, cores=32)-> NCD1_chr7); # bionc04
+#system.time(saveRDS(NCD1_chr7,file="NCD1_chr7.RData",compress=F)); remove(NCD1_chr7);
 
-system.time(NCD1(X=LWK[[9]], W=3000, S=1500, cores=32)-> NCD1_chr9); #1608.131 
-system.time(saveRDS(NCD1_chr9,file="NCD1_chr9.RData",compress=F)); remove(NCD1_chr9);
+#system.time(NCD1(X=LWK[[6]], W=3000, S=1500, cores=32)-> NCD1_chr6); #2643.937
+#system.time(saveRDS(NCD1_chr6,file="NCD1_chr6.RData",compress=F)); remove(NCD1_chr6);
 
-system.time(NCD1(X=LWK[[8]], W=3000, S=1500, cores=32)-> NCD1_chr8); #1993.388
-system.time(saveRDS(NCD1_chr8,file="NCD1_chr8.RData",compress=F)); remove(NCD1_chr8);
+#system.time(NCD1(X=LWK[[5]], W=3000, S=1500, cores=32)-> NCD1_chr5); #2661.527
+#system.time(saveRDS(NCD1_chr5,file="NCD1_chr5.RData",compress=F)); remove(NCD1_chr5);
 
-system.time(NCD1(X=LWK[[7]], W=3000, S=1500, cores=32)-> NCD1_chr7); # bionc04
-system.time(saveRDS(NCD1_chr7,file="NCD1_chr7.RData",compress=F)); remove(NCD1_chr7);
+#system.time(NCD1(X=LWK[[4]], W=3000, S=1500, cores=32)-> NCD1_chr4); # binc12
+#system.time(saveRDS(NCD1_chr4,file="NCD1_chr4.RData",compress=F)); remove(NCD1_chr4);
 
-system.time(NCD1(X=LWK[[6]], W=3000, S=1500, cores=32)-> NCD1_chr6); #2643.937
-system.time(saveRDS(NCD1_chr6,file="NCD1_chr6.RData",compress=F)); remove(NCD1_chr6);
+#system.time(NCD1(X=LWK[[3]], W=3000, S=1500, cores=32)-> NCD1_chr3); #bionc06
+#system.time(saveRDS(NCD1_chr3,file="NCD1_chr3.RData",compress=F)); remove(NCD1_chr3);
 
-system.time(NCD1(X=LWK[[5]], W=3000, S=1500, cores=32)-> NCD1_chr5); #2661.527
-system.time(saveRDS(NCD1_chr5,file="NCD1_chr5.RData",compress=F)); remove(NCD1_chr5);
+#system.time(NCD1(X=LWK[[2]], W=3000, S=1500, cores=my_cores/2)-> NCD1_chr2); #bionc01
+#system.time(saveRDS(NCD1_chr2,file="NCD1_chr2.RData",compress=F)); remove(NCD1_chr2);
 
-system.time(NCD1(X=LWK[[4]], W=3000, S=1500, cores=32)-> NCD1_chr4); # binc12
-system.time(saveRDS(NCD1_chr4,file="NCD1_chr4.RData",compress=F)); remove(NCD1_chr4);
-
-system.time(NCD1(X=LWK[[3]], W=3000, S=1500, cores=32)-> NCD1_chr3); #bionc06
-system.time(saveRDS(NCD1_chr3,file="NCD1_chr3.RData",compress=F)); remove(NCD1_chr3);
-
-system.time(NCD1(X=LWK[[2]], W=3000, S=1500, cores=my_cores/2)-> NCD1_chr2); #bionc01
-system.time(saveRDS(NCD1_chr2,file="NCD1_chr2.RData",compress=F)); remove(NCD1_chr2);
-
-system.time(NCD1(X=LWK[[1]], W=3000, S=1500, cores=32)-> NCD1_chr1); #5038.725 
-system.time(saveRDS(NCD1_chr1,file="NCD1_chr1.RData",compress=F)); #
-remove(NCD1_chr1);
+#system.time(NCD1(X=LWK[[1]], W=3000, S=1500, cores=32)-> NCD1_chr1); #5038.725 
+#system.time(saveRDS(NCD1_chr1,file="NCD1_chr1.RData",compress=F)); remove(NCD1_chr1);
 
 ###update:  just use run_NCD1.R it works wonderully.
 source('run_NCD1.R')
 source('run_NCD2.R')
+ecdf_fun <- function(x,perc) ecdf(x)(perc) #http://stats.stackexchange.com/questions/50080/estimate-quantile-of-value-in-a-vector
+
 ####################### ################################# ###############################
 ####################### ################################# ###############################
 ####################### ################################# ###############################
@@ -341,50 +329,127 @@ source('run_NCD2.R')
 #system.time(NCD1(X=LWK_chr4_AF_3 %>% dplyr::filter(POS %in% a) %>% as.data.table, W=3000, S=1500)-> out_LWK_inv_PrivStd)
 
 # STOPPED HERE ON 25.04.2017!!!!!!!!!!
-NCD1(X=LWK[[4]][POS %in% var_dt$POS], W=3000, S=1500)-> chr4_inv_NCD1
-chr4_inv_NCD1[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
-chr4_inv_NCD1[order(as.numeric(Chr), as.numeric(POS1))]-> chr4_inv_NCD1
+NCD1(X=LWK[[4]][POS %in% var_dt$POS], W=3000, S=1500)-> LWK_chr4_inv_NCD1
+LWK_chr4_inv_NCD1[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+LWK_chr4_inv_NCD1[order(as.numeric(Chr), as.numeric(POS1))]-> LWK_chr4_inv_NCD1
 
-NCD2(X=LWK[[4]][POS %in% var_dt$POS], Y=FD_list[[4]], W=3000, S=1500)-> chr4_inv_NCD2
-chr4_inv_NCD2[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
-chr4_inv_NCD2[order(as.numeric(Chr), as.numeric(POS1))]-> chr4_inv_NCD2
+NCD1(X=TSI[[4]][POS %in% var_dt$POS], W=3000, S=1500)-> TSI_chr4_inv_NCD1
+TSI_chr4_inv_NCD1[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+TSI_chr4_inv_NCD1[order(as.numeric(Chr), as.numeric(POS1))]-> TSI_chr4_inv_NCD1
 
+NCD1(X=GBR[[4]][POS %in% var_dt$POS], W=3000, S=1500)-> GBR_chr4_inv_NCD1
+GBR_chr4_inv_NCD1[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+GBR_chr4_inv_NCD1[order(as.numeric(Chr), as.numeric(POS1))]-> GBR_chr4_inv_NCD1
 
+NCD1(X=YRI[[4]][POS %in% var_dt$POS], W=3000, S=1500)-> YRI_chr4_inv_NCD1
+YRI_chr4_inv_NCD1[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+YRI_chr4_inv_NCD1[order(as.numeric(Chr), as.numeric(POS1))]-> YRI_chr4_inv_NCD1
+#
 
-NCD1(X=LWK[[4]][POS %in% var_dt[Type=='PrivateStd']$POS], W=3000, S=1500)-> chr4_inv_PrivStd_NCD1
-chr4_inv_PrivStd_NCD1[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
-chr4_inv_PrivStd_NCD1[order(as.numeric(Chr), as.numeric(POS1))]-> chr4_inv_PrivStd_NCD1
+NCD2(X=LWK[[4]][POS %in% var_dt$POS], Y=FD_list[[4]], W=3000, S=1500)-> LWK_chr4_inv_NCD2
+LWK_chr4_inv_NCD2[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+LWK_chr4_inv_NCD2[order(as.numeric(Chr), as.numeric(POS1))]-> LWK_chr4_inv_NCD2
 
+NCD2(X=GBR[[4]][POS %in% var_dt$POS], Y=FD_list[[4]], W=3000, S=1500)-> GBR_chr4_inv_NCD2
+GBR_chr4_inv_NCD2[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+GBR_chr4_inv_NCD2[order(as.numeric(Chr), as.numeric(POS1))]-> GBR_chr4_inv_NCD2
 
-NCD2(X=LWK[[4]][POS %in% var_dt[Type=='PrivateStd']$POS],Y=FD_list[[4]], W=3000, S=1500)-> chr4_inv_PrivStd_NCD2
-chr4_inv_PrivStd_NCD2[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
-chr4_inv_PrivStd_NCD2[order(as.numeric(Chr), as.numeric(POS1))]-> chr4_inv_PrivStd_NCD2
+NCD2(X=TSI[[4]][POS %in% var_dt$POS], Y=FD_list[[4]], W=3000, S=1500)-> TSI_chr4_inv_NCD2
+TSI_chr4_inv_NCD2[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+TSI_chr4_inv_NCD2[order(as.numeric(Chr), as.numeric(POS1))]->TSI_chr4_inv_NCD2
 
+NCD2(X=YRI[[4]][POS %in% var_dt$POS], Y=FD_list[[4]], W=3000, S=1500)-> YRI_chr4_inv_NCD2
+YRI_chr4_inv_NCD2[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+YRI_chr4_inv_NCD2[order(as.numeric(Chr), as.numeric(POS1))]-> YRI_chr4_inv_NCD2
+#
 
+NCD1(X=LWK[[4]][POS %in% var_dt[Type=='PrivateStd']$POS], W=3000, S=1500)-> LWK_chr4_inv_PrivStd_NCD1
+LWK_chr4_inv_PrivStd_NCD1[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+LWK_chr4_inv_PrivStd_NCD1[order(as.numeric(Chr), as.numeric(POS1))]-> LWK_chr4_inv_PrivStd_NCD1
 
-ecdf_fun <- function(x,perc) ecdf(x)(perc) #http://stats.stackexchange.com/questions/50080/estimate-quantile-of-value-in-a-vector
+NCD1(X=YRI[[4]][POS %in% var_dt[Type=='PrivateStd']$POS], W=3000, S=1500)-> YRI_chr4_inv_PrivStd_NCD1
+YRI_chr4_inv_PrivStd_NCD1[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+YRI_chr4_inv_PrivStd_NCD1[order(as.numeric(Chr), as.numeric(POS1))]->YRI_chr4_inv_PrivStd_NCD1
 
-#ecdf_fun(NCD1_gen_IS$NCD1_tf0.5, min(chr4_inv_NCD1$NCD1_tf0.5))[1]*100 #1.14% lower tail
-ecdf_fun(NCD1_gen_IS$NCD1_tf0.5, min(chr4_inv_NCD1$NCD1_tf0.5))[1]*100 # 0.65%
+NCD1(X=GBR[[4]][POS %in% var_dt[Type=='PrivateStd']$POS], W=3000, S=1500)-> GBR_chr4_inv_PrivStd_NCD1
+GBR_chr4_inv_PrivStd_NCD1[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+GBR_chr4_inv_PrivStd_NCD1[order(as.numeric(Chr), as.numeric(POS1))]-> GBR_chr4_inv_PrivStd_NCD1
 
-sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.5, min(chr4_inv_NCD2$NCD2_tf0.5))[1]*100) # 
+NCD1(X=TSI[[4]][POS %in% var_dt[Type=='PrivateStd']$POS], W=3000, S=1500)-> TSI_chr4_inv_PrivStd_NCD1
+TSI_chr4_inv_PrivStd_NCD1[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+TSI_chr4_inv_PrivStd_NCD1[order(as.numeric(Chr), as.numeric(POS1))]->TSI_chr4_inv_PrivStd_NCD1
+#
+
+NCD2(X=LWK[[4]][POS %in% var_dt[Type=='PrivateStd']$POS],Y=FD_list[[4]], W=3000, S=1500)-> LWK_chr4_inv_PrivStd_NCD2
+LWK_chr4_inv_PrivStd_NCD2[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+LWK_chr4_inv_PrivStd_NCD2[order(as.numeric(Chr), as.numeric(POS1))]-> LWK_chr4_inv_PrivStd_NCD2
+
+NCD2(X=YRI[[4]][POS %in% var_dt[Type=='PrivateStd']$POS],Y=FD_list[[4]], W=3000, S=1500)-> YRI_chr4_inv_PrivStd_NCD2
+YRI_chr4_inv_PrivStd_NCD2[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+YRI_chr4_inv_PrivStd_NCD2[order(as.numeric(Chr), as.numeric(POS1))]-> YRI_chr4_inv_PrivStd_NCD2
+
+NCD2(X=GBR[[4]][POS %in% var_dt[Type=='PrivateStd']$POS],Y=FD_list[[4]], W=3000, S=1500)-> GBR_chr4_inv_PrivStd_NCD2
+GBR_chr4_inv_PrivStd_NCD2[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+GBR_chr4_inv_PrivStd_NCD2[order(as.numeric(Chr), as.numeric(POS1))]-> GBR_chr4_inv_PrivStd_NCD2
+
+NCD2(X=TSI[[4]][POS %in% var_dt[Type=='PrivateStd']$POS],Y=FD_list[[4]], W=3000, S=1500)-> TSI_chr4_inv_PrivStd_NCD2
+TSI_chr4_inv_PrivStd_NCD2[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)]
+TSI_chr4_inv_PrivStd_NCD2[order(as.numeric(Chr), as.numeric(POS1))]-> TSI_chr4_inv_PrivStd_NCD2
+#
+Inv_Chr4_NCD1<- vector('list', 4)
+Inv_Chr4_NCD2<- vector('list', 4)
+Inv_Chr4_PrivStd_NCD1<- vector('list', 4)
+Inv_Chr4_PrivStd_NCD2<- vector('list', 4)
+#
+Inv_Chr4_NCD1[[1]]<-LWK_chr4_inv_NCD1
+Inv_Chr4_NCD2[[1]]<-LWK_chr4_inv_NCD2
+Inv_Chr4_PrivStd_NCD1[[1]]<-LWK_chr4_inv_PrivStd_NCD1
+Inv_Chr4_PrivStd_NCD2[[1]]<-LWK_chr4_inv_PrivStd_NCD2
+#
+Inv_Chr4_NCD1[[2]]<-YRI_chr4_inv_NCD1
+Inv_Chr4_NCD2[[2]]<-YRI_chr4_inv_NCD2
+Inv_Chr4_PrivStd_NCD1[[2]]<-YRI_chr4_inv_PrivStd_NCD1
+Inv_Chr4_PrivStd_NCD2[[2]]<-YRI_chr4_inv_PrivStd_NCD2
+#
+Inv_Chr4_NCD1[[3]]<-GBR_chr4_inv_NCD1
+Inv_Chr4_NCD2[[3]]<-GBR_chr4_inv_NCD2
+Inv_Chr4_PrivStd_NCD1[[3]]<-GBR_chr4_inv_PrivStd_NCD1
+Inv_Chr4_PrivStd_NCD2[[3]]<-GBR_chr4_inv_PrivStd_NCD2
+#
+Inv_Chr4_NCD1[[4]]<-TSI_chr4_inv_NCD1
+Inv_Chr4_NCD2[[4]]<-TSI_chr4_inv_NCD2
+Inv_Chr4_PrivStd_NCD1[[4]]<-TSI_chr4_inv_PrivStd_NCD1
+Inv_Chr4_PrivStd_NCD2[[4]]<-TSI_chr4_inv_PrivStd_NCD2
+#
+#ecdf_fun(NCD1_gen_IS
+sapply(1:4, function(x) ecdf_fun(NCD1_res_pops[[x]]$NCD1_tf0.5, min(Inv_Chr4_NCD1[[x]]$NCD1_tf0.5, na.rm=T))[1])
+sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.5, min(Inv_Chr4_NCD2[[x]]$NCD2_tf0.5, na.rm=T))[1]) 
+
 #ecdf_fun(out$tf0.5, min(out_LWK_inv_PrivStd$tf0.5))[1]*100  #0.5920426 %
-ecdf_fun(NCD1_gen_IS$NCD1_tf0.5, min(chr4_inv_PrivStd_NCD1$NCD1_tf0.5))[1]*100 #0.3801%
-sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.5, min(chr4_inv_PrivStd_NCD2$NCD2_tf0.5))[1]*100) 
+sapply(1:4, function(x) ecdf_fun(NCD1_res_pops[[x]]$NCD1_tf0.5, min(Inv_Chr4_PrivStd_NCD1[[x]]$NCD1_tf0.5, na.rm=T))[1]) 
+sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.5, min(Inv_Chr4_PrivStd_NCD2[[x]]$NCD2_tf0.5, na.rm=T))[1]) 
+
 #ecdf_fun(out$tf0.4, min(out_LWK_inv$tf0.4))[1]*100 # 1.744926 %
-ecdf_fun(NCD1_gen_IS$NCD1_tf0.4, min(chr4_inv_NCD1$NCD1_tf0.4))[1]*100 # 1.269808
-sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.4, min(chr4_inv_NCD2$NCD2_tf0.4))[1]*100) # 
+sapply(1:4, function(x) ecdf_fun(NCD1_res_pops[[x]]$NCD1_tf0.4, min(Inv_Chr4_NCD1[[x]]$NCD1_tf0.4, na.rm=T))[1]) # 
+sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.4, min(Inv_Chr4_NCD2[[x]]$NCD2_tf0.4, na.rm=T))[1]) # 
 
 #ecdf_fun(out$tf0.4, min(out_LWK_inv_PrivStd$tf0.4))[1]*100 # 0.6064437 %
-ecdf_fun(NCD1_gen_IS$NCD1_tf0.4, min(chr4_inv_PrivStd_NCD1$NCD1_tf0.4))[1]*100 #0.3937%
-sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.4, min(chr4_inv_PrivStd_NCD2$NCD2_tf0.4))[1]*100)
+#ecdf_fun(NCD1_gen_IS$NCD1_tf0.4, min(chr4_inv_PrivStd_NCD1$NCD1_tf0.4))[1]*100 #0.3937%
+
+sapply(1:4, function(x) ecdf_fun(NCD1_res_pops[[x]]$NCD1_tf0.4, min(Inv_Chr4_PrivStd_NCD1[[x]]$NCD1_tf0.4, na.rm=T))[1])
+sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.4, min(Inv_Chr4_PrivStd_NCD2[[x]]$NCD2_tf0.4, na.rm=T))[1])
+
 #ecdf_fun(out$tf0.3, min(out_LWK_inv$tf0.3))[1]*100 # 6.184445 %
-ecdf_fun(NCD1_gen_IS$NCD1_tf0.3, min(chr4_inv_NCD1$NCD1_tf0.3))[1]*100 # 4.49
-sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.3, min(chr4_inv_NCD2$NCD2_tf0.3))[1]*100) # 
+
+sapply(1:4, function(x) ecdf_fun(NCD1_res_pops[[x]]$NCD1_tf0.3, min(Inv_Chr4_NCD1[[x]]$NCD1_tf0.3, na.rm=T))[1]) # 
+sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.3, min(Inv_Chr4_NCD2[[x]]$NCD2_tf0.3, na.rm=T))[1]) # 
 
 #ecdf_fun(out$tf0.3, min(out_LWK_inv_PrivStd$tf0.3))[1]*100 # 0.9528686 %
-ecdf_fun(NCD1_gen_IS$NCD1_tf0.3, min(chr4_inv_PrivStd_NCD1$NCD1_tf0.3))[1]*100
-sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.3, min(chr4_inv_PrivStd_NCD2$NCD2_tf0.3))[1]*100)
+
+sapply(1:4, function(x) ecdf_fun(NCD1_res_pops[[x]]$NCD1_tf0.3, min(Inv_Chr4_PrivStd_NCD1[[x]]$NCD1_tf0.3, na.rm=T))[1])
+sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.3, min(Inv_Chr4_PrivStd_NCD2[[x]]$NCD2_tf0.3, na.rm=T))[1])
+
+
 #inversion
 
 #w<-40247234-40224426 #22208 bp, pretty big...
@@ -475,22 +540,22 @@ all_inv[,Chr:=NULL]
 all_inv[CHR!='X' & CHR!="Y"]-> all_inv_notXY
 all_inv_notXY[,.(.N),.(CHR)]
    CHR N
- 1:   1 3
- 2:  16 2
- 3:   2 4
- 4:  21 1
- 5:   5 3
- 6:   6 5
- 7:   7 2
- 8:   9 3
- 9:   4 3
-10:   3 2
-11:  11 2
-12:  13 2
-13:  14 2
-14:  17 2
-15:  19 1
-
+# 1:   1 3
+# 2:  16 2
+# 3:   2 4
+# 4:  21 1
+# 5:   5 3
+# 6:   6 5
+# 7:   7 2
+# 8:   9 3
+# 9:   4 3
+#10:   3 2
+#11:  11 2
+#12:  13 2
+#13:  14 2
+#14:  17 2
+#15:  19 1
+#
 all_inv_notXY[order(as.numeric(CHR))]-> all_inv_notXY
 
 a<-as.numeric(unique(all_inv_notXY$CHR))
@@ -499,31 +564,55 @@ all_inv_notXY[,Long:=EndBP2-StartBP1]
 all_inv_notXY[Long>=3000]->inv_3000bp #to relate to the scan
 
 test<-vector('list', 22)
+test2<-vector('list', 22)
+
 for(i in 1:nrow(inv_3000bp)){
 
 NCD1(X=LWK[[as.numeric(inv_3000bp[i,CHR])]][POS>= inv_3000bp[i, StartBP1] & POS<= inv_3000bp[i,EndBP2]], W=3000, S=1500)-> test[[i]]
+try(NCD2(X=LWK[[as.numeric(inv_3000bp[i,CHR])]][POS>= inv_3000bp[i, StartBP1] & POS<= inv_3000bp[i,EndBP2]], Y=FD_list[[as.numeric(inv_3000bp[i, CHR])]],W=3000, S=1500))-> test2[[i]]
+
 print(paste0('Inv ', i, ' done'))
 }
 
 names(test)<-inv_3000bp$Inversion
+names(test2)<-inv_3000bp$Inversion
+
+
+test2[names(unlist(lapply(test2, function(x) nrow(x))))]-> test2 #only 19 inv have NCD2 calcualted (chec why the other 3 failed)
 
 res<-data.table(Inv=names(test), StartBP1=inv_3000bp[,StartBP1], EndBP2=inv_3000bp[,EndBP2])
 
 
 for ( i in 1:nrow(inv_3000bp)){
-res[i,tf0.5:=ecdf_fun(NCD1_gen_IS$NCD1_tf0.5, min(test[[i]][N_SNPs_cor>=10]$NCD1_tf0.5, na.rm=T))[1]]
-res[i,tf0.4:=ecdf_fun(NCD1_gen_IS$NCD1_tf0.4, min(test[[i]][N_SNPs_cor>=10]$NCD1_tf0.4, na.rm=T))[1]]
-res[i,tf0.3:=ecdf_fun(NCD1_gen_IS$NCD1_tf0.3, min(test[[i]][N_SNPs_cor>=10]$NCD1_tf0.3, na.rm=T))[1]]
+res[i,tf0.5:=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.5, min(test[[i]][N_SNPs_cor>=10]$NCD1_tf0.5, na.rm=T))[1]]
+res[i,tf0.4:=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.4, min(test[[i]][N_SNPs_cor>=10]$NCD1_tf0.4, na.rm=T))[1]]
+res[i,tf0.3:=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.3, min(test[[i]][N_SNPs_cor>=10]$NCD1_tf0.3, na.rm=T))[1]]
+}
+
+inv_3000bp[inv_3000bp[,Inversion %in% names(test2)],]-> inv_3000bp2
+
+res2<-data.table(Inv=names(test2), StartBP1=inv_3000bp2[,StartBP1], EndBP2=inv_3000bp2[,EndBP2])
+
+
+for ( i in 1:length(test2)){
+try(res2[i,tf0.5:=ecdf_fun(NCD2_res_pops[[1]]$NCD2_tf0.5, min(na.omit(test2[[i]][IS>=10])$NCD2_tf0.5, na.rm=T))[1]])
+try(res2[i,tf0.4:=ecdf_fun(NCD2_res_pops[[1]]$NCD2_tf0.4, min(na.omit(test2[[i]][IS>=10])$NCD2_tf0.4, na.rm=T))[1]])
+try(res2[i,tf0.3:=ecdf_fun(NCD2_res_pops[[1]]$NCD2_tf0.3, min(na.omit(test2[[i]][IS>=10])$NCD2_tf0.3, na.rm=T))[1]])
 }
 
 #add that initial inversion from chr4
-rbind(res, list(Inv='Inv_chr4',StartBP1=40247234, EndBP2=40224426,tf0.5=ecdf_fun(NCD1_gen_IS$NCD1_tf0.5, min(chr4_inv_NCD1[N_SNPs_cor>=10]$NCD1_tf0.5))[1] ,tf0.4=ecdf_fun(NCD1_gen_IS$NCD1_tf0.4, min(chr4_inv_NCD1[N_SNPs_cor>=10]$NCD1_tf0.4))[1], tf0.3=ecdf_fun(NCD1_gen_IS$NCD1_tf0.3, min(chr4_inv_NCD1[N_SNPs_cor>=10]$NCD1_tf0.3))[1] ))-> res
+rbind(res, list(Inv='Inv_chr4',StartBP1=40247234, EndBP2=40224426,tf0.5=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.5, min(Inv_Chr4_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.5, na.rm=T))[1] ,tf0.4=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.4, min(Inv_Chr4_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.4, na.rm=T))[1], tf0.3=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.3, min(Inv_Chr4_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.3, na.rm=T))[1] ))-> res
 
 
-rbind(res, list(Inv='Inv_chr4_PrivStd',StartBP1=40247234, EndBP2=40224426,tf0.5=ecdf_fun(NCD1_gen_IS$NCD1_tf0.5, min(chr4_inv_PrivStd_NCD1[N_SNPs_cor>=10]$NCD1_tf0.5))[1],tf0.4=ecdf_fun(NCD1_gen_IS$NCD1_tf0.4, min(chr4_inv_PrivStd_NCD1[N_SNPs_cor>=10]$NCD1_tf0.4))[1], tf0.3=ecdf_fun(NCD1_gen_IS$NCD1_tf0.3, min(chr4_inv_PrivStd_NCD1[N_SNPs_cor>=10]$NCD1_tf0.3))[1]))-> res
+#add that initial inversion from chr4
+rbind(res, list(Inv='Inv_chr4_PrivStd',StartBP1=40247234, EndBP2=40224426,tf0.5=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.5, min(Inv_Chr4_PrivStd_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.5, na.rm=T))[1] ,tf0.4=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.4, min(Inv_Chr4_PrivStd_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.4, na.rm=T))[1], tf0.3=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.3, min(Inv_Chr4_PrivStd_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.3, na.rm=T))[1] ))-> res
 
+rbind(res2, list(Inv='Inv_chr4',StartBP1=40247234, EndBP2=40224426,tf0.5=ecdf_fun(NCD2_res_pops[[1]]$NCD2_tf0.5, min(Inv_Chr4_NCD2[[1]][IS>=10]$NCD2_tf0.5, na.rm=T))[1] ,tf0.4=ecdf_fun(NCD2_res_pops[[1]]$NCD2_tf0.4, min(Inv_Chr4_NCD2[[1]][IS>=10]$NCD2_tf0.4, na.rm=T))[1], tf0.3=ecdf_fun(NCD2_res_pops[[1]]$NCD2_tf0.3, min(Inv_Chr4_NCD2[[1]][IS>=10]$NCD2_tf0.3, na.rm=T))[1] ))-> res2
 
+rbind(res2, list(Inv='Inv_chr4_PrivStd',StartBP1=40247234, EndBP2=40224426,tf0.5=ecdf_fun(NCD2_res_pops[[1]]$NCD2_tf0.5, min(Inv_Chr4_PrivStd_NCD2[[1]][IS>=10]$NCD2_tf0.5, na.rm=T))[1] ,tf0.4=ecdf_fun(NCD2_res_pops[[1]]$NCD2_tf0.4, min(Inv_Chr4_PrivStd_NCD2[[1]][IS>=10]$NCD2_tf0.4, na.rm=T))[1], tf0.3=ecdf_fun(NCD2_res_pops[[1]]$NCD2_tf0.3, min(Inv_Chr4_PrivStd_NCD2[[1]][IS>=10]$NCD2_tf0.3, na.rm=T))[1] ))-> res2
 
+setkey(res, Inv)
+setkey(res2, Inv)
+
+res[res2][,c("i.StartBP1","i.EndBP2"):=NULL]-> res3   
 #now NCD2
-
-

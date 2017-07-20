@@ -27,8 +27,6 @@ my_cores<-detectCores()/4
 fread('input_files/VariantsClassified_HsInv0102_using434Ph3Samples.txt')-> var_dt
 #human-chimp divergence file:
 Objects()
-source('run_NCD1.r')
-
 
 ##########can be skipped ############
 FD_list<-factor('list',22)
@@ -139,28 +137,10 @@ Store(LWK_chr4_DAF, YRI_chr4_DAF, GBR_chr4_DAF, TSI_chr4_DAF, LWK_inv_DAF, YRI_i
 ##################################################################################
 #the following was done wihtout removing indels. Might need to redo properly.
 #skip to line 173
-system.time(mclapply2(1:22, function(i) system(paste0('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr',i,'.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/LWK_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/LWK_chr', i, '_AF'))))
+#run vctools and clean data
 
-system.time(mclapply2(1:22, function(i) system(paste0('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr',i,'.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/GBR_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/GBR_chr', i, '_AF'))))
-
-system.time(mclapply2(1:22, function(i) system(paste0('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr',i,'.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/YRI_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/YRI_chr', i, '_AF'))))
-
-system.time(mclapply2(1:22, function(i) system(paste0('vcftools --gzvcf /mnt/sequencedb/1000Genomes/ftp/phase3/20140910/ALL.chr',i,'.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz --keep /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/TSI_samples.txt --freq --out /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/input_files/TSI_chr', i, '_AF'))))  #10369.160 
-
-mclapply2(1:22, function(i)
-system(paste0('sed \'s/\t/  /\'  input_files/LWK_chr', i, '_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/LWK_chr', i, '_AF_2.frq')))
-mclapply2(1:22, function(i)
-system(paste0('sed \'s/\t/  /\'  input_files/YRI_chr', i, '_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/YRI_chr', i, '_AF_2.frq')))
-mclapply2(1:22, function(i)
-system(paste0('sed \'s/\t/  /\'  input_files/GBR_chr', i, '_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/GBR_chr', i, '_AF_2.frq')))
-mclapply2(1:22, function(i)
-system(paste0('sed \'s/\t/  /\'  input_files/TSI_chr', i, '_AF.frq  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/g\'|sed \'s/  /\t/g\' > input_files/TSI_chr', i, '_AF_2.frq')))
-
-#remove duplicated files
-system('rm input_files/*AF.frq')
-system('rm input_files/*AF.log')
-#####
-#
+source('run_vcftools.R')
+################################
 Objects()
 
 mclapply2(1:22, function(i)
@@ -177,6 +157,7 @@ mclapply2(1:22, function(i) fread(paste0('input_files/LWK_chr',i, '_AF_2.frq')))
 mclapply2(1:22, function(i) fread(paste0('input_files/YRI_chr',i, '_AF_2.frq')))->Pops_AF[['YRI']];
 mclapply2(1:22, function(i) fread(paste0('input_files/GBR_chr',i, '_AF_2.frq')))->Pops_AF[['GBR']];
 mclapply2(1:22, function(i) fread(paste0('input_files/TSI_chr',i, '_AF_2.frq')))->Pops_AF[['TSI']];
+
 #
 for(j in 1:4){for (i in 1:22){colnames(Pops_AF[[j]][[i]])<-c('CHR','POS','nAL', 'N_chr','AF')}}; #add colnames
 
@@ -318,7 +299,8 @@ remove(Pops_AF); gc()
 source('run_NCD1.R')
 source('run_NCD2.R')
 ecdf_fun <- function(x,perc) ecdf(x)(perc) #http://stats.stackexchange.com/questions/50080/estimate-quantile-of-value-in-a-vector
-
+Store()
+Store()
 ####################### ################################# ###############################
 ####################### ################################# ###############################
 ####################### ################################# ###############################
@@ -448,88 +430,60 @@ sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.3, min(Inv_Chr4_NCD
 
 sapply(1:4, function(x) ecdf_fun(NCD1_res_pops[[x]]$NCD1_tf0.3, min(Inv_Chr4_PrivStd_NCD1[[x]]$NCD1_tf0.3, na.rm=T))[1])
 sapply(1:4, function(x) ecdf_fun(NCD2_res_pops[[x]]$NCD2_tf0.3, min(Inv_Chr4_PrivStd_NCD2[[x]]$NCD2_tf0.3, na.rm=T))[1])
-
-
 #inversion
-
 #w<-40247234-40224426 #22208 bp, pretty big...
-
-
-### perhaps obsolete (check later)
-#system('sed \'s/\t/  /\'  freq_chr4_inv.txt.frq.count  |sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/  /\'|sed \'s/\t/;/\'|sed \'s/\t/;/\'|sed \'s/  /\t/g\' > freq_inv.txt')
-
-#fread('freq_inv.txt')-> freq_inv #global frequencies of the SNPs in the inversion. If I want pop specific it will require some further filtering.
-#colnames(freq_inv)[5]<- gsub(":","_",gsub("\\{|\\}","", colnames(freq_inv)[5])) #fix col name
-#index vcf
-
-#system('cat header2.txt test2.vcf.recode.vcf > real_vcf')
-
-#fread('real_vcf', header=T)-> chr4_inv_vcf #read in vcf
-
-#adding a header to this data.table
-#colnames(chr4_inv_vcf)<-unlist(strsplit(gsub("#","",system('tail -n 1 header.txt', intern=T)), "\t"))
-#chr4_simp<- select(chr4_inv_vcf, CHROM:FORMAT)
-#join var_dt to frequency info
-#left_join(freq_inv, var_dt) %>% as.data.table -> comp_dt
-#now use chimp info:
-
-#nrow(HC_div) #209 FD in the inversion +- 10 kb
 
 nrow(FD_list[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]]) # 207 FDs in inversion
 nrow(LWK[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]]) #577 SNPs in LWK in inversion
 nrow(LWK[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]][MAF!=0 & MAF!=1]) #197 segregating in LWK
 
+## of segregating SNPs per pop.
+c(nrow(LWK[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]][MAF!=0 & MAF!=1]), nrow(YRI[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]][MAF!=0 & MAF!=1]),
+
+nrow(GBR[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]][MAF!=0 & MAF!=1]), nrow(TSI[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]][MAF!=0 & MAF!=1]))
+#
 LWK[[4]][POS %in% var_dt[Type=='PrivateStd']$POS] #201 SNPs (LWK) that are Private SNPs.
 
-LWK[[4]][POS %in% var_dt[Type=='PrivateStd']$POS][MAF!=0 & MAF!=1] #108 actually segregating
-
-
-
-#comp_dt %>% dplyr::group_by(Type) %>% dplyr::summarise(N=n(), PtoD=N/nrow(HC_div))  #PtoD without correcting FDs
-
-#Pto with uncorrected SNPs and FDs
-197/577=0.3414211
-
-#PtoDo with SNPs only PrivateStd
-
-108/577=0.187175
-
-#now need to correct FDs
+#actually segregating
+c(nrow(LWK[[4]][POS %in% var_dt[Type=='PrivateStd']$POS][MAF!=0 & MAF!=1]),nrow(YRI[[4]][POS %in% var_dt[Type=='PrivateStd']$POS][MAF!=0 & MAF!=1]),nrow(GBR[[4]][POS %in% var_dt[Type=='PrivateStd']$POS][MAF!=0 & MAF!=1]),nrow(TSI[[4]][POS %in% var_dt[Type=='PrivateStd']$POS][MAF!=0 & MAF!=1])) #108  88  45  65 (LWK, YRI, GBR, TSI)
 
 setkey(LWK[[4]], ID)
+setkey(YRI[[4]], ID)
+setkey(GBR[[4]], ID)
+setkey(TSI[[4]], ID)
 setkey(FD_list[[4]], ID)
 
 #34 FDs are positions also in the SNP data
-
 LWK[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]][FD_list[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]], nomatch=0] 
 #29 of them have the supposed fixed chimp allele segregating as alternate allele in this population
 LWK[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]][FD_list[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]], nomatch=0][Chimp_REF==ALT]
 #but actually only 27 need to be removed from FDs because the other two are not segregating in this population.
 LWK[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]][FD_list[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]], nomatch=0][Chimp_REF==ALT][MAF!=0 & MAF!=1]
+YRI[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]][FD_list[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]], nomatch=0][Chimp_REF==ALT][MAF!=0 & MAF!=1] #27 also
+GBR[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]][FD_list[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]], nomatch=0][Chimp_REF==ALT][MAF!=0 & MAF!=1] #20
+TSI[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]][FD_list[[4]][POS>=var_dt[1,POS] & POS<= var_dt[nrow(var_dt),POS]], nomatch=0][Chimp_REF==ALT][MAF!=0 & MAF!=1] #24
 
-#So, corrrected PtoD
 
-197/(577-27)=0.3581818
-108/(577-29)=0.1970803
+#corrected PtoD for all
+c(nrow(LWK[[4]][POS %in% var_dt$POS][MAF!=0 & MAF!=1]),nrow(YRI[[4]][POS %in% var_dt$POS][MAF!=0 & MAF!=1]),nrow(GBR[[4]][POS %in% var_dt$POS][MAF!=0 & MAF!=1]),nrow(TSI[[4]][POS %in% var_dt$POS][MAF!=0 & MAF!=1]))/(207-c(27,27,20,24))
+# 1.0944444 0.9777778 0.5240642 0.6229508
 
-#(na.omit(left_join(comp_dt, HC_div) %>% as.data.table) %>% dplyr::filter(Chimp_REF==ALT))$POS-> temp #FDs that are not FDs.9 FDs actually have the chimp state segreagating as alternate allele
-#i wonder why i got such different estimates now...
+#So, corrrected PtoD for privateStd
 
-#filter(HC_div, !(POS %in% temp)) #180 FDs
+c(nrow(LWK[[4]][POS %in% var_dt[Type=='PrivateStd']$POS][MAF!=0 & MAF!=1]),nrow(YRI[[4]][POS %in% var_dt[Type=='PrivateStd']$POS][MAF!=0 & MAF!=1]),nrow(GBR[[4]][POS %in% var_dt[Type=='PrivateStd']$POS][MAF!=0 & MAF!=1]),nrow(TSI[[4]][POS %in% var_dt[Type=='PrivateStd']$POS][MAF!=0 & MAF!=1])) /(207-c(27, 27,20,24))
+
+#0.6000000 0.4888889 0.2406417 0.3551913
 
 #check NCD within inverison
+#dt_inv_chr4<-data.table(POS1=var_dt[1, POS], POS2=var_dt[nrow(var_dt), POS])
+#var_dt[,POS1:=POS]
+#var_dt[,POS2:=POS]
+#setkey(var_dt, POS1, POS2)
+#setkey(dt_inv_chr4, POS1, POS2)
+#setkey(NCD1_res_pops, POS1, POS2)
+#var_dt[,CHR:=CHROM]
 
-dt_inv_chr4<-data.table(POS1=var_dt[1, POS], POS2=var_dt[nrow(var_dt), POS])
-var_dt[,POS1:=POS]
-var_dt[,POS2:=POS]
-setkey(var_dt, POS1, POS2)
-setkey(dt_inv_chr4, POS1, POS2)
-setkey(NCD1_gen_IS, POS1, POS2)
-
-
-var_dt[,CHR:=CHROM]
-
-#PRoject: consider extending all of the above to the other inversions as well...
+#Project: consider extending all of the above to the other inversions as well...
 
 #read in file with all inversions
 
@@ -567,23 +521,21 @@ test<-vector('list', 22)
 test2<-vector('list', 22)
 
 for(i in 1:nrow(inv_3000bp)){
-
-NCD1(X=LWK[[as.numeric(inv_3000bp[i,CHR])]][POS>= inv_3000bp[i, StartBP1] & POS<= inv_3000bp[i,EndBP2]], W=3000, S=1500)-> test[[i]]
+try(NCD1(X=LWK[[as.numeric(inv_3000bp[i,CHR])]][POS>= inv_3000bp[i, StartBP1] & POS<= inv_3000bp[i,EndBP2]], W=3000, S=1500))-> test[[i]]
 try(NCD2(X=LWK[[as.numeric(inv_3000bp[i,CHR])]][POS>= inv_3000bp[i, StartBP1] & POS<= inv_3000bp[i,EndBP2]], Y=FD_list[[as.numeric(inv_3000bp[i, CHR])]],W=3000, S=1500))-> test2[[i]]
-
 print(paste0('Inv ', i, ' done'))
 }
 
 names(test)<-inv_3000bp$Inversion
 names(test2)<-inv_3000bp$Inversion
 
+test[names(unlist(lapply(test, function(x) nrow(x))))]-> test #20
+test2[names(unlist(lapply(test2, function(x) nrow(x))))]-> test2 #only 17 inv have NCD2 calcualted (chec why the other 3 failed)
 
-test2[names(unlist(lapply(test2, function(x) nrow(x))))]-> test2 #only 19 inv have NCD2 calcualted (chec why the other 3 failed)
-
-res<-data.table(Inv=names(test), StartBP1=inv_3000bp[,StartBP1], EndBP2=inv_3000bp[,EndBP2])
+res<-data.table(Inv=names(test), StartBP1=inv_3000bp[Inversion %in% names(test)][,StartBP1], EndBP2=inv_3000bp[Inversion %in% names(test)][,EndBP2])
 
 
-for ( i in 1:nrow(inv_3000bp)){
+for ( i in 1:length(test)){
 res[i,tf0.5:=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.5, min(test[[i]][N_SNPs_cor>=10]$NCD1_tf0.5, na.rm=T))[1]]
 res[i,tf0.4:=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.4, min(test[[i]][N_SNPs_cor>=10]$NCD1_tf0.4, na.rm=T))[1]]
 res[i,tf0.3:=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.3, min(test[[i]][N_SNPs_cor>=10]$NCD1_tf0.3, na.rm=T))[1]]
@@ -591,7 +543,7 @@ res[i,tf0.3:=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.3, min(test[[i]][N_SNPs_cor>=1
 
 inv_3000bp[inv_3000bp[,Inversion %in% names(test2)],]-> inv_3000bp2
 
-res2<-data.table(Inv=names(test2), StartBP1=inv_3000bp2[,StartBP1], EndBP2=inv_3000bp2[,EndBP2])
+res2<-data.table(Inv=names(test2), StartBP1=inv_3000bp[Inversion %in% names(test2)][,StartBP1], EndBP2=inv_3000bp[Inversion %in% names(test2)][,EndBP2])
 
 
 for ( i in 1:length(test2)){
@@ -602,8 +554,6 @@ try(res2[i,tf0.3:=ecdf_fun(NCD2_res_pops[[1]]$NCD2_tf0.3, min(na.omit(test2[[i]]
 
 #add that initial inversion from chr4
 rbind(res, list(Inv='Inv_chr4',StartBP1=40247234, EndBP2=40224426,tf0.5=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.5, min(Inv_Chr4_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.5, na.rm=T))[1] ,tf0.4=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.4, min(Inv_Chr4_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.4, na.rm=T))[1], tf0.3=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.3, min(Inv_Chr4_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.3, na.rm=T))[1] ))-> res
-
-
 #add that initial inversion from chr4
 rbind(res, list(Inv='Inv_chr4_PrivStd',StartBP1=40247234, EndBP2=40224426,tf0.5=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.5, min(Inv_Chr4_PrivStd_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.5, na.rm=T))[1] ,tf0.4=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.4, min(Inv_Chr4_PrivStd_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.4, na.rm=T))[1], tf0.3=ecdf_fun(NCD1_res_pops[[1]]$NCD1_tf0.3, min(Inv_Chr4_PrivStd_NCD1[[1]][N_SNPs_cor>=10]$NCD1_tf0.3, na.rm=T))[1] ))-> res
 
@@ -615,4 +565,42 @@ setkey(res, Inv)
 setkey(res2, Inv)
 
 res[res2][,c("i.StartBP1","i.EndBP2"):=NULL]-> res3   
-#now NCD2
+res3[,Length:= abs(EndBP2-StartBP1)]#
+res3[,CHR:=c(all_inv[Inversion %in% res3[, Inv]][, CHR], 4, 4)]
+#correct p-values
+Store(res3)
+#sample a number between 1st and final positions in chromosome. add +- Len_Inv/2 to each side. Thats the fake inversion.
+tmp<- mclapply2(1:22, function(x) seq(LWK[[x]][1, POS], LWK[[x]][nrow(LWK[[x]]), POS]))
+
+test_A<-c()
+for ( i in 1:nrow(res3)){ #161.872 seconds for 1000 reps
+chr<-as.numeric(res3[i,CHR])
+print(i)
+test_A[[i]]<-foreach(x=1:100, .combine="rbind", .packages=c("data.table")) %dopar%
+data.table(CHR=chr, Central_Pos=sample(tmp[[chr]], 1))[,POS:=Central_Pos-res3[i,Length]/2][,POS2:=Central_Pos+ (res3[i, Length]/2)]
+}
+
+#playground
+#for first inversion
+#tmp.chr[,POS2:=POS]
+#setkey(tmp.chr, POS, POS2)
+#test_A[[1]][1]-> b
+test_B<-vector('list', length(test_A))
+test_D<-vector('list', length(test_A))
+
+system.time(mclapply2(1: length(test_A), function(y) mclapply2(1:1000, function(x) NCD1(X=arrange(LWK[[as.numeric(unique(test_A[[y]][,CHR]))]][POS>=test_A[[y]][x,POS] & POS<=test_A[[y]][x, POS2]], POS), W=3000, S=1500)))-> test_B)
+
+
+system.time(mclapply2(1: length(test_A), function(y) mclapply2(1:1000, function(x) NCD2(X=arrange(LWK[[as.numeric(unique(test_A[[y]][,CHR]))]][POS>=test_A[[y]][x,POS] & POS<=test_A[[y]][x, POS2]], POS),Y=arrange(FD_list[[as.numeric(unique(test_A[[y]][,CHR]))]], POS), W=3000, S=1500)))-> test_D) #about 10000 seconds...
+
+#now get the lowest NCD
+
+
+mclapply2(1:19, function(y) mclapply2(1:3, function(x) test_B[[y]][[x]][, which.min(NCD1_tf0.5)], NCD1_tf0.5]))
+
+vec_NCD1_tf0.5_sim<-unlist(mclapply2(1:1000, function(x) test_B[[x]][test_B[[x]][, which.min(NCD1_tf0.5)], NCD1_tf0.5]))
+
+vec_NCD1_tf0.4_sim<-unlist(mclapply2(1:1000, function(x) test_B[[x]][test_B[[x]][, which.min(NCD1_tf0.4)], NCD1_tf0.4]))
+
+vec_NCD1_tf0.3_sim<-unlist(mclapply2(1:1000, function(x) test_B[[x]][test_B[[x]][, which.min(NCD1_tf0.3)], NCD1_tf0.3]))
+

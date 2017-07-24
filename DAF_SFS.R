@@ -3,7 +3,7 @@ library(doMC)
 registerDoMC(11)
 library(data.table)
 library(dplyr)
-
+#last modified 21.07.2017
 #######################################################################
 ##################   SFS SFS SFS SFS SFS SFS SFS ######################
 #######################################################################
@@ -89,6 +89,7 @@ colnames(IBS_chr4_DAF)<-c('CHR','POS','nAL', 'N_chr','AAF','DAF')
 colnames(ITU_chr4_DAF)<-c('CHR','POS','nAL', 'N_chr','AAF','DAF')
 colnames(JPT_chr4_DAF)<-c('CHR','POS','nAL', 'N_chr','AAF','DAF')
 colnames(KHV_chr4_DAF)<-c('CHR','POS','nAL', 'N_chr','AAF','DAF')
+colnames(LWK_chr4_DAF)<-c('CHR','POS','nAL', 'N_chr','AAF','DAF')
 colnames(MSL_chr4_DAF)<-c('CHR','POS','nAL', 'N_chr','AAF','DAF')
 colnames(MXL_chr4_DAF)<-c('CHR','POS','nAL', 'N_chr','AAF','DAF')
 colnames(PEL_chr4_DAF)<-c('CHR','POS','nAL', 'N_chr','AAF','DAF')
@@ -127,10 +128,32 @@ as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",YRI_chr4_DAF$DAF
 
 pdf('figures/test.SFS.all_chr4.pdf')
 #par(mfrow=c(4,1))
-barplot(table(factor(round(LWK_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(LWK_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="LWK all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7) #rounding the DAF makes the plot look nicer
-barplot(table(factor(round(YRI_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(YRI_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="YRI all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(ACB_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ACB_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="ACB all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(ASW_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ASW_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="AWS all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7) #rounding the DAF makes the plot look nicer
+barplot(table(factor(round(BEB_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(BEB_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="BEB all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(CDX_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CDX_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="CDX all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7) #rounding the DAF makes the plot look nicer
+barplot(table(factor(round(CEU_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CEU_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="CEU all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(CHB_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CHB_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="CHB all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7) #rounding the DAF makes the plot look nicer
+barplot(table(factor(round(CHS_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CHS_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="CHS all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(CLM_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CLM_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="CLM all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(ESN_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ESN_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="ESN all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(FIN_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(FIN_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="FIN all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
 barplot(table(factor(round(GBR_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(GBR_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="GBR all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(GIH_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(GIH_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="GIH all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(GWD_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(GWD_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="GWD all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(IBS_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(IBS_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="IBS all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(ITU_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ITU_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="ITU all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(JPT_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(JPT_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="JPT all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(KHV_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(KHV_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="KHV all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(LWK_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(LWK_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="LWK all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(MSL_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(MSL_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="MSL all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(MXL_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(MXL_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="MXL all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(PEL_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(PEL_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="PEL all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(PJL_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(PJL_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="PJL all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(PUR_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(PUR_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="PUR all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(STU_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(STU_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="STU all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
 barplot(table(factor(round(TSI_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(TSI_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="TSI all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(YRI_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(YRI_chr4_DAF$DAF,2),levels=seq(0,1,0.01)))), main="YRI all SNPs in chr4", xlab="DAF",ylim=c(0,1), cex.names=0.7)
 dev.off()
 
 
@@ -168,31 +191,18 @@ dplyr::filter(var_dt, Type=="PrivateStd")$POS-> Std
 
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(ACB_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> ACB_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(ASW_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> ASW_invPrivStd_DAF
-
-
-
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(BEB_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> BEB_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(CDX_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> CDX_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(CEU_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> CEU_invPrivStd_DAF
-
-
-
-
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(CHB_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> CHB_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(CHS_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> CHS_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(CLM_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> CLM_invPrivStd_DAF
-
-
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(ESN_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> ESN_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(FIN_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> FIN_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(GBR_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> GBR_invPrivStd_DAF
-
-
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(GIH_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> GIH_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(GWD_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> GWD_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(IBS_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> IBS_invPrivStd_DAF
-
-
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(ITU_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> ITU_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(JPT_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> JPT_invPrivStd_DAF
 as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(KHV_chr4_DAF %>% dplyr::filter(POS %in% Std))$DAF)))))-> KHV_invPrivStd_DAF
@@ -208,46 +218,90 @@ as.numeric(gsub("T:","",gsub("G:","",gsub("C:","", gsub("A:","",(YRI_chr4_DAF %>
 
 pdf('figures/test.SFS.allinv_chr4.pdf')
 #par(mfrow=c(4,1))
-barplot(table(factor(round(LWK_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(LWK_inv_DAF,2),levels=seq(0,1,0.01)))), main="LWK all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
-barplot(table(factor(round(YRI_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(YRI_inv_DAF,2),levels=seq(0,1,0.01)))), main="YRI all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(ACB_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ACB_inv_DAF,2),levels=seq(0,1,0.01)))), main="ACB all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(ASW_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ASW_inv_DAF,2),levels=seq(0,1,0.01)))), main="ASW all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(BEB_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(BEB_inv_DAF,2),levels=seq(0,1,0.01)))), main="BEB all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(CDX_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CDX_inv_DAF,2),levels=seq(0,1,0.01)))), main="CDX all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(CEU_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CEU_inv_DAF,2),levels=seq(0,1,0.01)))), main="CEU all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(CHB_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CHB_inv_DAF,2),levels=seq(0,1,0.01)))), main="CHB all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(CHS_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CHS_inv_DAF,2),levels=seq(0,1,0.01)))), main="CHS all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(CLM_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CLM_inv_DAF,2),levels=seq(0,1,0.01)))), main="CLM all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(ESN_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ESN_inv_DAF,2),levels=seq(0,1,0.01)))), main="ESN all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(FIN_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(FIN_inv_DAF,2),levels=seq(0,1,0.01)))), main="FIN all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
 barplot(table(factor(round(GBR_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(GBR_inv_DAF,2),levels=seq(0,1,0.01)))), main="GBR all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(GIH_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(GIH_inv_DAF,2),levels=seq(0,1,0.01)))), main="GIH all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(GWD_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(GWD_inv_DAF,2),levels=seq(0,1,0.01)))), main="GWD all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(IBS_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(IBS_inv_DAF,2),levels=seq(0,1,0.01)))), main="IBS all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(ITU_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ITU_inv_DAF,2),levels=seq(0,1,0.01)))), main="ITU all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(JPT_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(JPT_inv_DAF,2),levels=seq(0,1,0.01)))), main="JPT all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(KHV_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(KHV_inv_DAF,2),levels=seq(0,1,0.01)))), main="KHV all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(LWK_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(LWK_inv_DAF,2),levels=seq(0,1,0.01)))), main="LWK all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(MSL_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(MSL_inv_DAF,2),levels=seq(0,1,0.01)))), main="MSL all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(MXL_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(MXL_inv_DAF,2),levels=seq(0,1,0.01)))), main="MXL all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(PEL_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(PEL_inv_DAF,2),levels=seq(0,1,0.01)))), main="PEL all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(PJL_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(PJL_inv_DAF,2),levels=seq(0,1,0.01)))), main="PJL all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(PUR_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(PUR_inv_DAF,2),levels=seq(0,1,0.01)))), main="PUR all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(STU_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(STU_inv_DAF,2),levels=seq(0,1,0.01)))), main="STU all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
 barplot(table(factor(round(TSI_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(TSI_inv_DAF,2),levels=seq(0,1,0.01)))), main="TSI all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
+barplot(table(factor(round(YRI_inv_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(YRI_inv_DAF,2),levels=seq(0,1,0.01)))), main="YRI all SNPs in Inversion", xlab="DAF",ylim=c(0,1),cex.names=0.7)
 dev.off()
 
 pdf('figures/test.SFS.PrivStdinv_chr4.pdf')
 #par(mfrow=c(4,1))
-barplot(table(factor(round(LWK_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(LWK_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="LWK PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
-barplot(table(factor(round(YRI_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(YRI_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="YRI PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
-barplot(table(factor(round(GBR_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(GBR_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="GBR PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
-barplot(table(factor(round(TSI_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(TSI_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="TSI PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
 
-ev.off()
+barplot(table(factor(round(ACB_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ACB_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="ACB PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(ASW_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ASW_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="ASW PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(BEB_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(BEB_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="BEB PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(CDX_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CDX_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="CDX PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(CEU_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CEU_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="CEU PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(CHB_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CHB_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="CHB PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(CHS_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CHS_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="CHS PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(CLM_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(CLM_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="CLM PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(ESN_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ESN_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="ESN PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(FIN_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(FIN_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="FIN PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(GBR_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(GBR_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="GBR PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(GIH_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(GIH_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="GIH PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(GWD_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(GWD_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="GWD PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(IBS_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(IBS_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="IBS PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(ITU_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(ITU_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="ITU PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(JPT_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(JPT_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="JPT PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(KHV_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(KHV_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="KHV PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(LWK_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(LWK_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="LWK PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(MSL_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(MSL_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="MSL PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(MXL_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(MXL_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="MXL PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(PEL_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(PEL_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="PEL PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(PJL_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(PJL_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="PJL PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(PUR_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(PUR_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="PUR PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(STU_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(STU_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="STU PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(TSI_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(TSI_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="TSI PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+barplot(table(factor(round(YRI_invPrivStd_DAF,2),levels=seq(0,1,0.01)))/sum(table(factor(round(YRI_invPrivStd_DAF,2),levels=seq(0,1,0.01)))), main="YRI PrivateStd SNPs in Inversion", xlab="DAF",ylim=c(0,1), cex.names=0.7)
+dev.off()
 
 #Store
 
 Store(LWK_chr4_DAF, YRI_chr4_DAF, GBR_chr4_DAF, TSI_chr4_DAF, LWK_inv_DAF, YRI_inv_DAF, GBR_inv_DAF, TSI_inv_DAF, LWK_invPrivStd_DAF, YRI_invPrivStd_DAF, GBR_invPrivStd_DAF, TSI_invPrivStd_DAF,
-ACB_ch4_DAF, ACB_inv_DAF, ACB_invPrivStd_DAF,
-ASW_ch4_DAF, ASW_inv_DAF, ASW_invPrivStd_DAF,
-BEB_ch4_DAF, BEB_inv_DAF, BEB_invPrivStd_DAF,
-CDX_ch4_DAF, CDX_inv_DAF, CDX_invPrivStd_DAF,
-CEU_ch4_DAF, CEU_inv_DAF, CEU_invPrivStd_DAF,
-CHB_ch4_DAF, CHB_inv_DAF, CHB_invPrivStd_DAF,
-CHS_ch4_DAF, CHS_inv_DAF, CHS_invPrivStd_DAF,
-CLM_ch4_DAF, CLM_inv_DAF, CLM_invPrivStd_DAF,
-ESN_ch4_DAF, ESN_inv_DAF, ESN_invPrivStd_DAF,
-FIN_ch4_DAF, FIN_inv_DAF, FIN_invPrivStd_DAF,
-GIH_ch4_DAF, GIH_inv_DAF, GIH_invPrivStd_DAF,
-GWD_ch4_DAF, GWD_inv_DAF, GWD_invPrivStd_DAF,
-IBS_ch4_DAF, IBS_inv_DAF, IBS_invPrivStd_DAF,
-ITU_ch4_DAF, ITU_inv_DAF, ITU_invPrivStd_DAF,
-JPT_ch4_DAF, JPT_inv_DAF, JPT_invPrivStd_DAF,
-KHV_ch4_DAF, KHV_inv_DAF, KHV_invPrivStd_DAF,
-MSL_ch4_DAF, MSL_inv_DAF, MSL_invPrivStd_DAF,
-MXL_ch4_DAF, MXL_inv_DAF, MXL_invPrivStd_DAF,
-PEL_ch4_DAF, PEL_inv_DAF, PEL_invPrivStd_DAF,
-PJL_ch4_DAF, PJL_inv_DAF, PJL_invPrivStd_DAF,
-PUR_ch4_DAF, PUR_inv_DAF, PUR_invPrivStd_DAF,
-STU_ch4_DAF, STU_inv_DAF, STU_invPrivStd_DAF,
+ACB_chr4_DAF, ACB_inv_DAF, ACB_invPrivStd_DAF,
+ASW_chr4_DAF, ASW_inv_DAF, ASW_invPrivStd_DAF,
+BEB_chr4_DAF, BEB_inv_DAF, BEB_invPrivStd_DAF,
+CDX_chr4_DAF, CDX_inv_DAF, CDX_invPrivStd_DAF,
+CEU_chr4_DAF, CEU_inv_DAF, CEU_invPrivStd_DAF,
+CHB_chr4_DAF, CHB_inv_DAF, CHB_invPrivStd_DAF,
+CHS_chr4_DAF, CHS_inv_DAF, CHS_invPrivStd_DAF,
+CLM_chr4_DAF, CLM_inv_DAF, CLM_invPrivStd_DAF,
+ESN_chr4_DAF, ESN_inv_DAF, ESN_invPrivStd_DAF,
+FIN_chr4_DAF, FIN_inv_DAF, FIN_invPrivStd_DAF,
+GIH_chr4_DAF, GIH_inv_DAF, GIH_invPrivStd_DAF,
+GWD_chr4_DAF, GWD_inv_DAF, GWD_invPrivStd_DAF,
+IBS_chr4_DAF, IBS_inv_DAF, IBS_invPrivStd_DAF,
+ITU_chr4_DAF, ITU_inv_DAF, ITU_invPrivStd_DAF,
+JPT_chr4_DAF, JPT_inv_DAF, JPT_invPrivStd_DAF,
+KHV_chr4_DAF, KHV_inv_DAF, KHV_invPrivStd_DAF,
+MSL_chr4_DAF, MSL_inv_DAF, MSL_invPrivStd_DAF,
+MXL_chr4_DAF, MXL_inv_DAF, MXL_invPrivStd_DAF,
+PEL_chr4_DAF, PEL_inv_DAF, PEL_invPrivStd_DAF,
+PJL_chr4_DAF, PJL_inv_DAF, PJL_invPrivStd_DAF,
+PUR_chr4_DAF, PUR_inv_DAF, PUR_invPrivStd_DAF,
+STU_chr4_DAF, STU_inv_DAF, STU_invPrivStd_DAF
 )
 
 ##################################################################################

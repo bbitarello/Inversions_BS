@@ -6,12 +6,13 @@ library(SOAR);Sys.setenv(R_LOCAL_CACHE="inversions")
 library(ggplot2);library(splitstackshape)
 library(pryr)
 #biocLite(VariantAnnotation)
-library(vcfR);library(doMC)
-registerDoMC(11);library(bigmemory);
+#library(vcfR);
+library(doMC)
+registerDoMC(10);library(bigmemory);
 #source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/bedtools_inR.R')
 #source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/SFS_script.r')
 source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/mclapply2.R')
-
+#Note: there is room for improvement of this script if I use more data.table.
 ####################################
 ####################################
 ####################################
@@ -71,6 +72,13 @@ for (j in 1:26){
                 };
         gc(); print (pops[j]);
         }
+#there are still some indels left, so
 
-system.time(saveRDS(POPS_AF,file="POPS_AF_v2.RData",compress=F)) #  1783.870 seconds
+for(j in 1:26){
+	for (i in 1:22){
+		filter(POPS_AF[[j]][[i]], MAF<=0.5) %>% as.data.table-> POPS_AF[[j]][[i]];
+		print(paste0('chr', i));
+}
+}
+system.time(saveRDS(POPS_AF,file="POPS_AF_v2.RData"))
 

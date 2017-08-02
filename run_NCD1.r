@@ -13,16 +13,13 @@ library(parallel);library(lattice)
 library(SOAR);Sys.setenv(R_LOCAL_CACHE="inversions")
 library(ggplot2);library(splitstackshape)
 library(pryr)
-#biocLite(VariantAnnotation)
-#library(vcfR);
 library(doMC)
-#library(bigmemory);
 #source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/bedtools_inR.R')
 #source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/SFS_script.r')
 #source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/mclapply2.R')
 #source('NCD_func.R')
 #my_cores<-detectCores()/2
-registerDoMC(22);
+registerDoMC(11);
 Objects()
 
 ##################################################################################
@@ -73,62 +70,23 @@ NCD1 <- function(X, W = 100000, S = 50000) {
   unique(X_NCD[unique_windows])
 }
 
-system.time(LWK.run<-foreach(x=1:22, .combine="rbind", .packages=c("data.table")) %dopar%
-         NCD1(X=LWK[[x]], W=3000, S=1500)); # 58.237 OMG
-
-na.omit(LWK.run)-> LWK_NCD1_gen;
-
-LWK_NCD1_gen[N_SNPs_cor>=10]-> LWK_NCD1_gen_IS; #filter min informative sitesa
-
-LWK_NCD1_gen_IS[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)];
-LWK_NCD1_gen_IS[order(as.numeric(Chr), as.numeric(POS1))]-> LWK_NCD1_gen_IS;
-
-#
-
-system.time(YRI.run<-foreach(x=1:22, .combine="rbind", .packages=c("data.table")) %dopar%
-         NCD1(X=YRI[[x]], W=3000, S=1500)); # 58
-
-na.omit(YRI.run)-> YRI_NCD1_gen;
-
-YRI_NCD1_gen[N_SNPs_cor>=10]-> YRI_NCD1_gen_IS; #filter min informative sitesa
-
-YRI_NCD1_gen_IS[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)];
-YRI_NCD1_gen_IS[order(as.numeric(Chr), as.numeric(POS1))]-> YRI_NCD1_gen_IS;
-
-#
-
-system.time(GBR.run<-foreach(x=1:22, .combine="rbind", .packages=c("data.table")) %dopar%
-         NCD1(X=GBR[[x]], W=3000, S=1500)); # 
-
-na.omit(GBR.run)-> GBR_NCD1_gen;
-
-GBR_NCD1_gen[N_SNPs_cor>=10]-> GBR_NCD1_gen_IS; #filter min informative sitesa
-
-GBR_NCD1_gen_IS[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)];
-GBR_NCD1_gen_IS[order(as.numeric(Chr), as.numeric(POS1))]-> GBR_NCD1_gen_IS;
+x.1<-vector('list', 26)
+for(j in 1:26){
+system.time(x.1[[j]]<-foreach(x=1:22, .combine="rbind", .packages=c("data.table")) %dopar%
+         NCD1(X=POPS_AF[[j]][[x]], W=3000, S=1500)); # very fast
+print(pops[j])}
+#test:
+mclapply2(x.1, function(X) na.omit(X))-> pops_NCD1_gen
+mclapply2(pops_NCD1_gen, function(X) setDT(filter(X, N_SNPs_cor>=10)))-> pops_NCD1_gen_IS;
+mclapply2(pops_NCD1_gen_IS, function(X) X[, c('Chr', 'POS1','POS2') := tstrsplit(Win.ID, "|", fixed=TRUE)])-> pops_NCD1_gen_IS;
+mclapply2(pops_NCD1_gen_IS, function(X) X[order(as.numeric(Chr), as.numeric(POS1))])-> pops_NCD1_gen_IS
+Store(x.1, pops_NCD1_gen, pops_NCD1_gen_IS)
+#####
+#The End
 
 
-#
-
-system.time(TSI.run<-foreach(x=1:22, .combine="rbind", .packages=c("data.table")) %dopar%
-         NCD1(X=TSI[[x]], W=3000, S=1500)); # 
-
-na.omit(TSI.run)-> TSI_NCD1_gen;
-
-TSI_NCD1_gen[N_SNPs_cor>=10]-> TSI_NCD1_gen_IS; #filter min informative sitesa
-
-TSI_NCD1_gen_IS[, c("Chr", "POS1","POS2") := tstrsplit(Win.ID, "|", fixed=TRUE)];
-TSI_NCD1_gen_IS[order(as.numeric(Chr), as.numeric(POS1))]-> TSI_NCD1_gen_IS;
 
 
-NCD1_res_pops<-vector('list', 4)
-
-NCD1_res_pops[[1]]<-LWK_NCD1_gen_IS
-NCD1_res_pops[[2]]<-YRI_NCD1_gen_IS
-NCD1_res_pops[[3]]<-GBR_NCD1_gen_IS
-NCD1_res_pops[[4]]<-TSI_NCD1_gen_IS
-
-names(NCD1_res_pops)<-c('LWK','YRI','GBR','TSI')
 
 
 

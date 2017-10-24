@@ -145,5 +145,18 @@ for(j in 14:26){
 	print(pops[j]);
 }
 
-system.time(saveRDS(POPS_AF,file="POPS_AF_v2.RData")) #compress or not?
+#select less columns and save
+
+system.time(saveRDS(POPS_AF,file="POPS_AF.RData")) #has all columns
+Store(POPS_AF)
+
+pops<-c("ACB","ASW","BEB","CDX","CEU","CHB","CHS","CLM","ESN","FIN","GBR","GIH","GWD","IBS","ITU","JPT","KHV","LWK","MSL","MXL","PEL","PJL","PUR","STU","TSI","YRI")
+names(POPS_AF)<- pops
+
+mclapply2(POPS_AF, function(X) mclapply2(1:22, function(Y) X[[Y]][,.(CHR,POS,ID,REF,ALT,MAF)]))-> POPS_AF_v2
+
+system.time(saveRDS(POPS_AF_v2,file="POPS_AF_v2.RData")) #has less columns
+remove(POPS_AF)
+gc()
+POPS_AF_V2-> POPS_AF
 Store(POPS_AF)

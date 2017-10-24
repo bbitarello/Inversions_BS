@@ -6,7 +6,7 @@ Investigating signatures of balancing selection in human chromosomal inversions
 
 Author: Bárbara Domingues Bitarello
 
-Last modified: 19.07.2017
+Last modified: 20.07.2017
 
 **********************************************************************************
 

@@ -1,0 +1,36 @@
+#this was learned from Cesare de Filippo as used for the NCD paper.
+
+## Mappability tracks of different length (mer).
+
+## wget the tracks for 50, 75, and 100mer in bigWig format, convert them and select for 100% uniqueness. 
+for i in 50 75 100; do
+   wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeMapability/wgEncodeCrgMapabilityAlign${i}mer.bigWig
+   /mnt/expressions/miguel/bigWigToWig wgEncodeCrgMapabilityAlign${i}mer.bigWig /dev/stdout | awk '$4==1 {print $1"\t"$2-1"\t"$3}' | sed 's/-1/0/' | sed 's/^chr//' > wgEncodeCrgMapabilityAlign${i}mer_100.bed
+   sort -k1,1 -k2,2g wgEncodeCrgMapabilityAlign${i}mer_100.bed | bgzip > wgEncodeCrgMapabilityAlign${i}mer_100.bed.gz
+   tabix -p bed wgEncodeCrgMapabilityAlign${i}mer_100.bed.gz
+done
+
+rm *bigWig
+
+# -----------------------------------------------------
+
+# Get track for 50mer and which maps twice instead of just ones. 
+i=50
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeMapability/wgEncodeCrgMapabilityAlign${i}mer.bigWig
+/mnt/expressions/miguel/bigWigToWig wgEncodeCrgMapabilityAlign${i}mer.bigWig /dev/stdout | awk '$4>=0.5 {print $1"\t"$2-1"\t"$3"\tMap50mer05"}' \
+| sed 's/-1/0/' | sed 's/^chr//' > wgEncodeCrgMapabilityAlign${i}mer_50.bed
+sort -k1,1 -k2,2g wgEncodeCrgMapabilityAlign${i}mer_50.bed | bgzip > wgEncodeCrgMapabilityAlign${i}mer_50.bed.gz
+tabix -p bed wgEncodeCrgMapabilityAlign${i}mer_50.bed.gz
+
+
+#this file was produced by cesare. it is the mappable positions between human and chimp.
+tabix -p vcf hg19.pantro2.bed.gz 
+
+#mask bed file
+sed -i 's/^chr//g' 20141020.pilot_mask.whole_genome.bed 
+
+
+awk 'OFS="\t"{print $1, $2,$3}' 20141020.pilot_mask.whole_genome.bed > non_strict_mask.bed
+
+bgzip non_strict_mask.bed 
+

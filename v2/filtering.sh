@@ -15,7 +15,7 @@ echo ${i}
 done
 
 for i in CHB CEU LWK GIH JPT TSI YRI; do
-sed 's/\t/  /'  /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/v2/${i}_chrX_AF.frq |sed 's/\t/  /'|sed 's/\t/  /'|sed 's/\t/  /'|sed 's/\t/;/g'|sed 's/  /\t/g' > /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/v2/${i}_chrX_AF.frq
+sed 's/\t/  /'  /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/v2/${i}_chrX_AF.frq |sed 's/\t/  /'|sed 's/\t/  /'|sed 's/\t/  /'|sed 's/\t/;/g'|sed 's/  /\t/g' | sed '1d' | sed 's/^/chr/' > /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/v2/${i}_chrX_AF_2.frq
 echo ${i}
 done
 rm *_chrX_AF.frq
@@ -85,6 +85,11 @@ awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' TSI_chr${i}_AF_2.frq > TSI_chr${i}_AF_3.
 awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' YRI_chr${i}_AF_2.frq > YRI_chr${i}_AF_3.frq
 done
 
+for i in CHB CEU LWK GIH JPT TSI YRI; do
+awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' ${i}_chrX_AF_2.frq > ${i}_chrX_AF_3.frq
+echo ${i}
+done
+
 # concatenate all chromsomes
 
 touch CHB_all.frq
@@ -105,6 +110,12 @@ cat TSI_chr${i}_AF_3.frq >> TSI_all.frq
 cat YRI_chr${i}_AF_3.frq >> YRI_all.frq
 echo ${i}
 done
+
+for i in CHB CEU LWK GIH JPT TSI YRI; do
+cat ${i}_chrX_AF_3.frq >> ${i}_all.frq
+echo ${i}
+done
+
 #bgzip and tabix -p bed
 
 for i in CHB CEU LWK GIH JPT TSI YRI; do
@@ -150,6 +161,9 @@ tabix -p bed hg19.pantro2.bed.gz
 #intersect pilot mask and hg19 pantro2
 for i in CHB CEU LWK GIH JPT TSI YRI; do
 intersectBed -a ${i}_pilot_mask.bed.gz -b hg19.pantro2.bed.gz > ${i}_final.bed
+gzip ${i}_final.bed
 echo $i
 done
 
+
+#to do: read in the data and add covered number of bp (with chimp) per window so we can use that additional filter.

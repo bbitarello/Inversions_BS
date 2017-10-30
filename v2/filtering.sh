@@ -1,5 +1,24 @@
 ###
 
+#pantro
+rm hg19.pantro2.bed
+touch hg19.pantro2.bed
+
+for k in {1..22} X; do cat /mnt/sequencedb/PopGen/cesare/hg19/bedfiles/tmp/hg19.pantro2_${k}.bed >> /mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/v2/hg19.pantro2.bed; done
+sed -i 's/\s+/\t/g' hg19.pantro2.bed
+
+sed -i 's/^/chr/'   hg19.pantro2.bed
+
+sed -i '/-1/d' hg19.pantro2.bed
+
+sort -k1,1V -k2,2n -k3,3n hg19.pantro2.bed > hg19.pantro2.sort.bed
+
+#bgzip hg19.pantro2.bed 
+bgzip hg19.pantro2.sort.bed
+
+tabix -p vcf hg19.pantro2.sort.bed.gz
+
+
 #now do the same for chrX
 
 #calculate allele frequencies
@@ -75,7 +94,7 @@ done
 
 #make it look like a bed file
 
-for i in {1..22}; do
+for i in {1..22} X; do
 awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' CHB_chr${i}_AF_2.frq > CHB_chr${i}_AF_3.frq
 awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' CEU_chr${i}_AF_2.frq > CEU_chr${i}_AF_3.frq
 awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' LWK_chr${i}_AF_2.frq > LWK_chr${i}_AF_3.frq
@@ -83,14 +102,17 @@ awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' GIH_chr${i}_AF_2.frq > GIH_chr${i}_AF_3.
 awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' JPT_chr${i}_AF_2.frq > JPT_chr${i}_AF_3.frq
 awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' TSI_chr${i}_AF_2.frq > TSI_chr${i}_AF_3.frq
 awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' YRI_chr${i}_AF_2.frq > YRI_chr${i}_AF_3.frq
-done
-
-for i in CHB CEU LWK GIH JPT TSI YRI; do
-awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' ${i}_chrX_AF_2.frq > ${i}_chrX_AF_3.frq
 echo ${i}
 done
 
+#for i in CHB CEU LWK GIH JPT TSI YRI; do
+#awk 'OFS="\t"{print $1,$2,$2,$3,$4,$5}' ${i}_chrX_AF_2.frq > ${i}_chrX_AF_3.frq
+#echo ${i}
+#done
+
 # concatenate all chromsomes
+
+rm *_all.frq*
 
 touch CHB_all.frq
 touch CEU_all.frq
@@ -100,7 +122,7 @@ touch JPT_all.frq
 touch TSI_all.frq
 touch YRI_all.frq
 
-for i in {1..22};do
+for i in {1..22} X;do
 cat CHB_chr${i}_AF_3.frq >> CHB_all.frq
 cat CEU_chr${i}_AF_3.frq >> CEU_all.frq
 cat LWK_chr${i}_AF_3.frq >> LWK_all.frq
@@ -111,21 +133,23 @@ cat YRI_chr${i}_AF_3.frq >> YRI_all.frq
 echo ${i}
 done
 
-for i in CHB CEU LWK GIH JPT TSI YRI; do
-cat ${i}_chrX_AF_3.frq >> ${i}_all.frq
+
+for i in CHB CEU LWK GIH JPT TSI YRI;do
+sed -i 's/^chr//' ${i}_all.frq
+sort -k1,1V -k2,2n -k3,3n ${i}_all.frq |sed 's/^/chr/' > ${i}_all_2.frq
 echo ${i}
 done
 
 #bgzip and tabix -p bed
 
 for i in CHB CEU LWK GIH JPT TSI YRI; do
-bgzip ${i}_all.frq
+bgzip ${i}_all_2.frq
 echo $i
 done
 
 
 for i in CHB CEU LWK GIH JPT TSI YRI; do
-tabix -p bed ${i}_all.frq.gz
+tabix -p bed ${i}_all_2.frq.gz
 echo $i
 done
 
@@ -133,13 +157,14 @@ done
 rm _AF_3*
 
 #bgzip and tabix -p vcf the non strict mask from 1000G
+bgzip 20141020.pilot_mask.whole_genome.bed
 tabix -p bed 20141020.pilot_mask.whole_genome.bed.gz 
 
 #bgzip and tabix -p vcf hg19.pantro
 
 #for each chr and pop, intersectbed twice:with mask and with hg19.pantro
 for i in CHB CEU LWK GIH JPT TSI YRI; do
-intersectBed -a ${i}_all.frq.gz -b 20141020.pilot_mask.whole_genome.bed.gz  >  ${i}_pilot_mask.bed;
+intersectBed -a ${i}_all_2.frq.gz -b 20141020.pilot_mask.whole_genome.bed.gz  >  ${i}_pilot_mask.bed;
 wait
 bgzip ${i}_pilot_mask.bed;
 wait
@@ -148,22 +173,13 @@ echo ${i}
 
 done
 
-
-#add 'chr' to hg19 pantro
- 
-sed -i 's/^/chr/' hg19.pantro2.bed
-
-bgzip hg19.pantro2.bed 
-
-tabix -p bed hg19.pantro2.bed.gz
-
-
 #intersect pilot mask and hg19 pantro2
 for i in CHB CEU LWK GIH JPT TSI YRI; do
-intersectBed -a ${i}_pilot_mask.bed.gz -b hg19.pantro2.bed.gz > ${i}_final.bed
-gzip ${i}_final.bed
+intersectBed -a ${i}_pilot_mask.bed.gz -b hg19.pantro2.sort.bed.gz > ${i}_final.bed
+bgzip ${i}_final.bed
+wait
+tabix -p bed ${i}_final.bed.gz
 echo $i
 done
 
-
-#to do: read in the data and add covered number of bp (with chimp) per window so we can use that additional filter.
+#PROBLEM: the hg19 bed file I used doesn't have chrX. Need to go back and add it somehow...

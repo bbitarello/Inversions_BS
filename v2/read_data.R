@@ -16,9 +16,6 @@ source('/mnt/sequencedb/PopGen/barbara/NCV_dir_package/scripts/mclapply2.R')
 ecdf_fun <- function(x,perc) ecdf(x)(perc) #http://stats.stackexchange.com/questions/50080/estimate-quantile-of-value-in-a-vector
 source('/mnt/sequencedb/PopGen/barbara/NCD-Statistics/scripts/NCD_func.R')
 ##########
-
-
-
 #####
 
 #can be skipped
@@ -43,6 +40,34 @@ mclapply2(c(1:22,"X"), function(i)
 paste0('zcat < /mnt/sequencedb/PopGen/cesare/bs_genomescan/outgroup_files/fds.hg19_pantro2.', i, '.tsv.gz') %>%
 data.table::fread(sep='\t')) -> FD_list
 
+#pantro4 (10.12.2017)
+setwd('/mnt/sequencedb/PopGen/barbara/collaborations/Inversions_BS/v2/')
+
+FD_list_pantro4<-factor('list',23)
+mclapply2(c(1:22,"X"), function(i)
+paste0('zcat < ', i, ".tab.gz") %>% data.table::fread(sep="\t"))-> FD_list_pantro4
+
+for(i in 1:23){
+	colnames(FD_list_pantro4[[i]])<-c('CHR', 'POS', 'REF', 'Chimp_REF', 'panpan1.1', 'gorgor3', 'ponabe2','rhemac3','Vindija33.19','Altai', 'Denisova')
+	FD_list_pantro4[[i]]<-FD_list_pantro4[[i]] %>% dplyr::select('CHR', 'POS', 'REF', 'Chimp_REF') %>% as.data.table
+	print(i)
+	}
+
+#
+
+for(i in 1:23){
+	FD_list_pantro4[[i]][Chimp_REF %in% c("A","C","G","T")]-> FD_list_pantro4[[i]] #remove Ns and other weirdness
+	FD_list_pantro4[[i]][, ID:=paste0(CHR, "|",POS)] ->FD_list_pantro4[[i]]
+	}
+
+names(FD_list_pantro4)<-c(1:22,"X")
+for (i in 1:23){
+	FD_list_pantro4[[i]][REF!=Chimp_REF]-> FD_list_pantro4[[i]]
+	}
+
+Store(FD_list_pantro4)
+
+
 for (i in 1:23){
 colnames(FD_list[[i]])<-c('CHR', 'POS', 'REF', 'Chimp_REF')
 FD_list[[i]] %>% mutate(ID=paste0(CHR, "|",POS)) %>% as.data.table -> FD_list[[i]]
@@ -57,6 +82,9 @@ FD_list[[i]] %>% dplyr::mutate(REF=toupper(REF), Chimp_REF=toupper(Chimp_REF)) %
 names(FD_list)<-c(1:22,"X")
 Store(FD_list)
 
+
+Store(FD_list_pantro4)
+#interesting, there are more FDs using pantro2 than pantro4
 #############################################
 POPS_AF<-vector('list', 7)
 names(POPS_AF)<-pops
@@ -102,5 +130,17 @@ remove(POPS_AF); gc()
 system.time(saveRDS(POPS_AF_v2,file="POPS_AF_v2.RData")) #has less columns
 
 #end
+##add great apes
 
+apes<-list()
+for(chr in c(1:22,"X")){
+		if(chr %in% c(1:22,"X")[1:22]){
+	        fread(paste0('zcat ', chr, '.tab.gz'))-> apes[[chr]]
+        	} else {
+		fread(paste0('zcat ', chr, '.tab.gz'))-> apes[[23]]
+		print(chr)
+}
+}
+saveRDS(apes, file='apes.RData')
+#stopped here 24.11.
 

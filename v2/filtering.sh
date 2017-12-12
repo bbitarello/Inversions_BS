@@ -1,6 +1,6 @@
 ###
-
-#pantro
+#last updated on 10/12/2017
+#pantro2
 rm hg19.pantro2.bed
 touch hg19.pantro2.bed
 
@@ -18,6 +18,15 @@ bgzip hg19.pantro2.sort.bed
 
 tabix -p vcf hg19.pantro2.sort.bed.gz
 
+#pantrp 4 
+
+
+cp /mnt/expressions/Mike/scATAC/2_analyses/ben_ableToLift/panTro4/hg19_panTro4/hg19_sort.bed .
+mv hg19_sort.bed hg19_pantro4_sort.bed
+
+bgzip hg19_pantro4_sort.bed
+
+tabix -p vcf hg19_pantro4_sort.bed.gz
 
 #now do the same for chrX
 
@@ -182,4 +191,43 @@ tabix -p bed ${i}_final.bed.gz
 echo $i
 done
 
-#PROBLEM: the hg19 bed file I used doesn't have chrX. Need to go back and add it somehow...
+#now with pantro4 10/12/2017
+for i in CHB CEU LWK GIH JPT TSI YRI; do
+intersectBed -a ${i}_pilot_mask.bed.gz -b hg19_pantro4_sort.bed.gz > ${i}_final.bed
+bgzip ${i}_final.bed
+wait
+tabix -p bed ${i}_final.bed.gz
+echo $i
+done
+
+
+###CHIMP AND OTHER PRIMATES INFO
+
+for CHROMOSOME in {1..22} X;  
+do
+cp /mnt/scratch/kay/ape_table/${CHROMOSOME}.tab.gz .
+done
+
+#info about these files
+
+# get ref-human, apes and Altai, Den, Vindija
+for i in `seq 1 22` ; do /home/pruefer/src/BamSNPTool/BamSNPJoinGen <(gunzip -c /mnt/solexa/Genomes/hg19_evan/$i.fa.gz | ./faToTable.pl | /home/pruefer/src/BamSNPTool/BamSNPAddMaf /mnt/sequencedb/ucsc/goldenPath/hg19/vsPanTro4/axtNet/mafnet/chr$i.maf panTro4 | /home/pruefer/src/BamSNPTool/BamSNPAddMaf /mnt/454/BonoboGenome/chain_net/bonobo/i7_vs_hg19/mafnet/add_dot/chr$i.maf bonobo| /home/pruefer/src/BamSNPTool/BamSNPAddMaf /mnt/sequencedb/ucsc/goldenPath/hg19/vsGorGor3/axtNet/mafnet/chr$i.hg19.gorGor3.net.maf gorgor3 | /home/pruefer/src/BamSNPTool/BamSNPAddMaf /mnt/sequencedb/ucsc/goldenPath/hg19/vsPonAbe2/axtNet/mafnet/chr$i.hg19.ponAbe2.maf ponabe2 | /home/pruefer/src/BamSNPTool/BamSNPAddMaf /mnt/sequencedb/ucsc/goldenPath/hg19/vsRheMac3/axtNet/mafnet/chr$i.maf rheMac3) <(zcat /mnt/454/Vindija/high_cov/genotypes/Vindija33.19/chr${i}_mq25_mapab100.vcf.gz | vcf2table.pl -A) <(zcat /mnt/454/Vindija/high_cov/genotypes/Altai/chr${i}_mq25_mapab100.vcf.gz | vcf2table.pl -A) <(zcat /mnt/454/Vindija/high_cov/genotypes/Denisova/chr${i}_mq25_mapab100.vcf.gz | vcf2table.pl -A) | perl -lane 'print uc($_)' |  gzip > ape_table/$i.tab.gz & done
+
+
+
+
+# columns:
+1 chr
+2 pos
+3 hg19
+4 pantro4
+5 panpan1.1
+6 gorgor3
+7 ponabe2
+8 rhemac3
+9 Vindija33.19 (with ambiguity codes for hets)
+10 Altai (with ambiguity codes for hets)
+11 Denisova (with ambiguity codes for hets)
+
+#pruefer@bionc05:/mnt/scratch/kay/ape_table$ for i in `seq 1 22` X ; do bedtools intersect -a <(zcat $i.tab.gz | vcf2bed) -b /mnt/454/HCNDCAM/Hengs_Alignability_Filter/hs37m_filt35_99.bed.gz | bed2vcf | gzip > manifesto/$i.tab.gz & done
+
